@@ -41,13 +41,13 @@ var profiles [][5]string = [][5]string{
 	{"0x8E7896D70618D38651c7231d26A2ABee259216c0", "10", "3750000", "Team 8", "35050"}, // 1460 days
 
 	// Foundation
-	{"0x61ad236FCcCF342B1b76a7DE5D0475EEeb8405a9", "10", "3000000", "Marketing", "24"}, // 1 day
+	{"0x61ad236FCcCF342B1b76a7DE5D0475EEeb8405a9", "10", "3000000", "Marketing", "3"}, // 1 day
 	{"0xAca2D120eE27e0E493bF91Ee9f3315Ec005b9CE3", "10", "5300000", "Foundation Ops", "24"},
-	{"0x8B9Ef3147950C00422cDED432DC5b4c0AA2D2Cdd", "10", "1700000", "Public Sale", "24"},
+	{"0x8B9Ef3147950C00422cDED432DC5b4c0AA2D2Cdd", "10", "1700000", "Public Sale", "3"},
 	{"0x78BA7A9E73e219E85bE44D484529944355BF6701", "10", "30000000", "Foundation Lock", "17520"}, // 730 days
 
 	// testnet meter mapping
-	{"0xfB88393e18e1B8c45fC2a90b9c533C61D20E290c", "89672.78", "0", "Account for DFL STPT", "24"}, // 1 day
+	{"0xfB88393e18e1B8c45fC2a90b9c533C61D20E290c", "89672.78", "0", "Account for DFL STPT", "3"}, // 1 day
 	{"0xa6FfDc4f4de5D00f1a218d702a5283300Dfbd5f2", "88763.59", "0", "Account for DFL Airdrop", "24"},
 	{"0xe7f434Ed3b2ff7f0a2C1582C1cd4321713167419", "1798.83", "0", "MC", "24"},
 	{"0x79440D5193b2D83fc828002901D4036a65aF1b4C", "156.88", "0", "PO", "24"},
@@ -58,7 +58,7 @@ var profiles [][5]string = [][5]string{
 	{"0x9f4a27264Cc89cfb0D385881C348551e4009918F", "6.24", "0", "da qi", "24"},
 	{"0x25aA205E81b442A2760aF51A1d8C7D708868F9bA", "1236.20", "0", "Shuai", "24"},
 	{"0xfd746a652b3a3A81bAA01CB92faE5ba4C32c3667", "540.10", "0", "Tony Wang", "24"},
-	{"0xf53E2Edf6d35c163e23F196faA49aB7181322d1e", "1437.78", "1700000", "sdk Dong", "24"},
+	{"0xf53E2Edf6d35c163e23F196faA49aB7181322d1e", "1437.78", "1700000", "sdk Dong", "3"},
 	{"0x673c8e958302bd7cca53112bc04b2adab7e66faf", "3950.43", "0", "xiaofo peng you", "24"},
 	{"0xd90401e403834aa42850c4d2a7049d68dfd2ecd7", "500.00", "0", "jian fei", "24"},
 	{"0xcc79e77273e6d4e9c2eb078bbe11a8071ed08a47", "1500.00", "0", "Jennifer", "24"},
