@@ -194,10 +194,10 @@ func NewTransactionFromEthTx(ethTx *types.Transaction, chainTag byte, blockRef B
 	return tx, nil
 }
 func ChainIdValidate(chainId *big.Int) (bool, error) {
-	if meter.IsMainNet() && chainId != new(big.Int).SetUint64(meter.MainnetChainID) {
+	if meter.IsMainNet() && chainId.Cmp(new(big.Int).SetUint64(meter.MainnetChainID)) != 0 {
 		return false, errors.New("wrong mainNet chainId")
 	}
-	if meter.IsTestNet() && chainId != new(big.Int).SetUint64(meter.TestnetChainID) {
+	if meter.IsTestNet() && chainId.Cmp(new(big.Int).SetUint64(meter.TestnetChainID)) != 0 {
 		return false, errors.New("wrong testNet chainId")
 	}
 
