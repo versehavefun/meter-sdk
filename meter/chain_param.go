@@ -21,8 +21,8 @@ const (
 	//EdisonTestnetStartNum      = 0
 
 	//chainID
-	MainnetChainID = 36 // 0x52 for mainnet
-	TestnetChainID = 72 // 0x53 for testnet
+	MainnetChainID = 72 // 0x52 for mainnet
+	TestnetChainID = 36 // 0x53 for testnet
 )
 
 // Tesla: The staking/auction release, Features include:
@@ -77,7 +77,7 @@ var (
 
 	// Genesis hashes to enforce below configs on.
 	//TODO: change me
-	GenesisHash = MustParseBytes32("0x000000008d23443cdb7c8b00391d41d957eab0d5bf812a1657f73f75ead5f997")
+	GenesisHash = MustParseBytes32("0x000000004a4e9287486ce92cd08dc7e2b75e702fcd4695576334c534ae32cac9")
 	log         = log15.New("pkg", "meter")
 )
 
