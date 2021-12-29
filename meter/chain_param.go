@@ -27,42 +27,42 @@ const (
 
 // Tesla: The staking/auction release, Features include:
 const (
-	//Tesla                = iota + 2
-	//TeslaMainnetStartNum = 0 // Tesla hard fork around 03/22/2021 08:00-09:00 (Beijing Time)
-	//TeslaTestnetStartNum = 0       //
+//Tesla                = iota + 2
+//TeslaMainnetStartNum = 0 // Tesla hard fork around 03/22/2021 08:00-09:00 (Beijing Time)
+//TeslaTestnetStartNum = 0       //
 
-	// Tesla 1.1 Hardfork
-	// includes feature updates:
-	// 1）bucket update issue fix, bound balance before update bucket
-	// 2) allow update for forever bucket
-	// 2) correct wrong buckets in Tesla 1.0 due to bucket update issue
-	// 3) account lock fix, allow transfer only if (amount + lockedMTRG) < (balance + boundbalance), fix includes native transfer and system contract ERC20 transfer
-	// 4）update (total votes / self vote) limit from 10x to 100x
-	//Tesla1_1MainnetStartNum = 0
+// Tesla 1.1 Hardfork
+// includes feature updates:
+// 1）bucket update issue fix, bound balance before update bucket
+// 2) allow update for forever bucket
+// 2) correct wrong buckets in Tesla 1.0 due to bucket update issue
+// 3) account lock fix, allow transfer only if (amount + lockedMTRG) < (balance + boundbalance), fix includes native transfer and system contract ERC20 transfer
+// 4）update (total votes / self vote) limit from 10x to 100x
+//Tesla1_1MainnetStartNum = 0
 
-	//TeslaFork2_MainnetStartNum = 0 // around 4/16/2021 11:00 AM (Beijing)
-	//TeslaFork2_TestnetStartNum = 682000   // around 4/16/2021 11:00 AM (Beijing)
+//TeslaFork2_MainnetStartNum = 0 // around 4/16/2021 11:00 AM (Beijing)
+//TeslaFork2_TestnetStartNum = 682000   // around 4/16/2021 11:00 AM (Beijing)
 
-	// Tesla 1.3 Hardfork
-	// includes feature updates:
-	// 1) evm upgrade from v1.18.10 to v1.18.14
-	// 2) istanbul porting from vechain
-	// 3) aggregate autobid
-	// 4) fix the contract address issue: if caller is external, use tx nonce + clauseIndex
-	//    otherwise, caller is internal, use global counter as entropy
-	// 5) fix the empty chainid issue
-	//TeslaFork3_MainnetAuctionDefectStartNum = 0
-	//TeslaFork3_MainnetStartNum              = 0 // around 8/24/2021 10:00 AM (Beijing)
-	//TeslaFork3_TestnetStartNum              = 4220000  //  4220000
+// Tesla 1.3 Hardfork
+// includes feature updates:
+// 1) evm upgrade from v1.18.10 to v1.18.14
+// 2) istanbul porting from vechain
+// 3) aggregate autobid
+// 4) fix the contract address issue: if caller is external, use tx nonce + clauseIndex
+//    otherwise, caller is internal, use global counter as entropy
+// 5) fix the empty chainid issue
+//TeslaFork3_MainnetAuctionDefectStartNum = 0
+//TeslaFork3_MainnetStartNum              = 0 // around 8/24/2021 10:00 AM (Beijing)
+//TeslaFork3_TestnetStartNum              = 4220000  //  4220000
 
-	// Tesla 1.4 Hardfork
-	// includes feature updates:
-	// 1) contract address schema update, after tesla fork4, contract created by external account should use
-	// meter-specific address scheme for created contract: keccak256(txID, clauseIndex, counter)
-	// 2) fixed the sync failure at 10963576 (negative total stake balance for stakeholder, should snap to 0 once negative)
-	// 3) fixed the sync failure at 13931713 (use caller for contract address creation, should use origin)
-	//TeslaFork4_TestnetStartNum = 4932000
-	//TeslaFork4_MainnetStartNum = 0 // around 9/1/2021 9:30 AM (Beijing)
+// Tesla 1.4 Hardfork
+// includes feature updates:
+// 1) contract address schema update, after tesla fork4, contract created by external account should use
+// meter-specific address scheme for created contract: keccak256(txID, clauseIndex, counter)
+// 2) fixed the sync failure at 10963576 (negative total stake balance for stakeholder, should snap to 0 once negative)
+// 3) fixed the sync failure at 13931713 (use caller for contract address creation, should use origin)
+//TeslaFork4_TestnetStartNum = 4932000
+//TeslaFork4_MainnetStartNum = 0 // around 9/1/2021 9:30 AM (Beijing)
 )
 
 // start block number support sys-contract
@@ -105,7 +105,7 @@ func (c *ChainConfig) IsInitialized() bool {
 	return c.Initialized
 }
 
-// chain flag right now ONLY 3: "main"/"test"/"warringstakes"
+// chain flag right now ONLY 3: "main"/"test"/"main-private"
 func (c *ChainConfig) IsMainnet() bool {
 	if c.IsInitialized() == false {
 		log.Error("Chain is not initialized", "chain-flag", c.ChainFlag)
@@ -117,8 +117,8 @@ func (c *ChainConfig) IsMainnet() bool {
 		return true
 	case "test":
 		return false
-	case "warringstakes":
-		return false
+	// case "warringstakes":
+	// return false
 	case "main-private":
 		return true
 	default:
@@ -136,8 +136,8 @@ func (c *ChainConfig) IsTestnet() bool {
 		return false
 	case "test":
 		return true
-	case "warringstakes":
-		return true
+	// case "warringstakes":
+	// return true
 	case "main-private":
 		return false
 	default:
@@ -171,7 +171,7 @@ func (c *ChainConfig) IsTestnet() bool {
 //}
 
 //func (p *ChainConfig) IsTeslaFork4(blockNum uint32) bool {
-	//return blockNum >= TeslaFork4StartNum
+//return blockNum >= TeslaFork4StartNum
 //}
 
 func InitBlockChainConfig(genesisID Bytes32, chainFlag string) {

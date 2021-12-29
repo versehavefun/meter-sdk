@@ -33,7 +33,6 @@ import (
 	"github.com/meterio/meter-pov/powpool"
 	"github.com/meterio/meter-pov/reward"
 	"github.com/meterio/meter-pov/runtime"
-	"github.com/meterio/meter-pov/script"
 	"github.com/meterio/meter-pov/state"
 	"github.com/meterio/meter-pov/tx"
 	"github.com/meterio/meter-pov/txpool"
@@ -714,82 +713,82 @@ func (conR *ConsensusReactor) BuildKBlock(parentBlock *block.Block, data *block.
 
 	// edison not support the staking/auciton/slashing
 	//if meter.IsMainChainTesla(parentBlock.Header().Number()) == true || meter.IsTestNet() {
-		stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, conR.csPacemaker.newCommittee, uint32(conR.curEpoch))
-		if err != nil {
-			// TODO: do something about this
-			conR.logger.Info("no slash statistics need to info", "error", err)
-		}
-		if len(stats) != 0 {
-			statsTx := reward.BuildStatisticsTx(stats, chainTag, bestNum, curEpoch)
-			txs = append(txs, statsTx)
-			conR.logger.Info("auction control tx appended", "txid", statsTx.ID())
-		}
+	stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, conR.csPacemaker.newCommittee, uint32(conR.curEpoch))
+	if err != nil {
+		// TODO: do something about this
+		conR.logger.Info("no slash statistics need to info", "error", err)
+	}
+	if len(stats) != 0 {
+		statsTx := reward.BuildStatisticsTx(stats, chainTag, bestNum, curEpoch)
+		txs = append(txs, statsTx)
+		conR.logger.Info("auction control tx appended", "txid", statsTx.ID())
+	}
 
-		//reservedPrice := GetAuctionReservedPrice()
-		//initialRelease := GetAuctionInitialRelease()
+	//reservedPrice := GetAuctionReservedPrice()
+	//initialRelease := GetAuctionInitialRelease()
 
-		//if tx := reward.BuildAuctionControlTx(uint64(best.Header().Number()+1), uint64(best.GetBlockEpoch()+1), chainTag, bestNum, initialRelease, reservedPrice, conR.chain); tx != nil {
-		//	txs = append(txs, tx)
-		//	conR.logger.Info("auction control tx appended", "txid", tx.ID())
+	//if tx := reward.BuildAuctionControlTx(uint64(best.Header().Number()+1), uint64(best.GetBlockEpoch()+1), chainTag, bestNum, initialRelease, reservedPrice, conR.chain); tx != nil {
+	//	txs = append(txs, tx)
+	//	conR.logger.Info("auction control tx appended", "txid", tx.ID())
+	//}
+
+	// build governing tx && autobid tx only when staking delegates is used
+	if conR.sourceDelegates != fromDelegatesFile {
+		//benefitRatio := reward.GetValidatorBenefitRatio(state)
+		validatorBaseReward := reward.GetValidatorBaseRewards(state)
+		epochBaseReward := reward.ComputeEpochBaseReward(validatorBaseReward)
+		//nDays := meter.NDays
+		//nAuctionPerDay := meter.NEpochPerDay // wrong number before hardfork
+		//nDays = meter.NDaysV2
+		//nAuctionPerDay = meter.NAuctionPerDay
+		//epochTotalReward, err := reward.ComputeEpochTotalReward(benefitRatio, nDays, nAuctionPerDay)
+		//if err != nil {
+		epochTotalReward := big.NewInt(0)
+		//}
+		var rewardMap reward.RewardMap
+		//if meter.IsMainChainTeslaFork2(parentBlock.Header().Number()) == true || meter.IsTestChainTeslaFork2(parentBlock.Header().Number()) == true {
+		fmt.Println("Compute reward map V3")
+		rewardMap, err = reward.ComputeRewardMapV3(epochBaseReward, epochTotalReward, conR.curDelegates.Delegates, conR.curCommittee.Validators)
+		//} else {
+		//	fmt.Println("Compute reward map v2")
+		//	rewardMap, err = reward.ComputeRewardMapV2(epochBaseReward, epochTotalReward, conR.curDelegates.Delegates, conR.curCommittee.Validators)
 		//}
 
-		// build governing tx && autobid tx only when staking delegates is used
-		if conR.sourceDelegates != fromDelegatesFile {
-			//benefitRatio := reward.GetValidatorBenefitRatio(state)
-			validatorBaseReward := reward.GetValidatorBaseRewards(state)
-			epochBaseReward := reward.ComputeEpochBaseReward(validatorBaseReward)
-			//nDays := meter.NDays
-			//nAuctionPerDay := meter.NEpochPerDay // wrong number before hardfork
-			//nDays = meter.NDaysV2
-			//nAuctionPerDay = meter.NAuctionPerDay
-			//epochTotalReward, err := reward.ComputeEpochTotalReward(benefitRatio, nDays, nAuctionPerDay)
-			//if err != nil {
-				epochTotalReward := big.NewInt(0)
-			//}
-			var rewardMap reward.RewardMap
-			//if meter.IsMainChainTeslaFork2(parentBlock.Header().Number()) == true || meter.IsTestChainTeslaFork2(parentBlock.Header().Number()) == true {
-				fmt.Println("Compute reward map V3")
-				rewardMap, err = reward.ComputeRewardMapV3(epochBaseReward, epochTotalReward, conR.curDelegates.Delegates, conR.curCommittee.Validators)
-			//} else {
-			//	fmt.Println("Compute reward map v2")
-			//	rewardMap, err = reward.ComputeRewardMapV2(epochBaseReward, epochTotalReward, conR.curDelegates.Delegates, conR.curCommittee.Validators)
-			//}
-
-			if err == nil && len(rewardMap) > 0 {
-				distList := rewardMap.GetDistList()
-				fmt.Println("**** Dist List")
-				for _, d := range distList {
-					fmt.Println(d.String())
-				}
-				fmt.Println("-------------------------")
-
-				governingTx := reward.BuildStakingGoverningTx(distList, uint32(conR.curEpoch), chainTag, bestNum)
-				if governingTx != nil {
-					txs = append(txs, governingTx)
-					conR.logger.Info("*** governing tx appended", "txid", governingTx.ID())
-				}
-
-				//autobidList := rewardMap.GetAutobidList()
-				//fmt.Println("**** Autobid List")
-				//for _, a := range autobidList {
-				//	fmt.Println(a.String())
-				//}
-				//fmt.Println("-------------------------")
-
-				//autobidTxs := reward.BuildAutobidTxs(autobidList, chainTag, bestNum)
-				//if len(autobidTxs) > 0 {
-				//	txs = append(txs, autobidTxs...)
-				//	for _, tx := range autobidTxs {
-				//		conR.logger.Info("autobid tx appended", "txid", tx.ID())
-				//	}
-				//}
-			} else {
-				fmt.Println("-------------------------")
-				fmt.Println("Reward Map is empty")
-				fmt.Println("-------------------------")
-
+		if err == nil && len(rewardMap) > 0 {
+			distList := rewardMap.GetDistList()
+			fmt.Println("**** Dist List")
+			for _, d := range distList {
+				fmt.Println(d.String())
 			}
+			fmt.Println("-------------------------")
+
+			governingTx := reward.BuildStakingGoverningTx(distList, uint32(conR.curEpoch), chainTag, bestNum)
+			if governingTx != nil {
+				txs = append(txs, governingTx)
+				conR.logger.Info("*** governing tx appended", "txid", governingTx.ID())
+			}
+
+			//autobidList := rewardMap.GetAutobidList()
+			//fmt.Println("**** Autobid List")
+			//for _, a := range autobidList {
+			//	fmt.Println(a.String())
+			//}
+			//fmt.Println("-------------------------")
+
+			//autobidTxs := reward.BuildAutobidTxs(autobidList, chainTag, bestNum)
+			//if len(autobidTxs) > 0 {
+			//	txs = append(txs, autobidTxs...)
+			//	for _, tx := range autobidTxs {
+			//		conR.logger.Info("autobid tx appended", "txid", tx.ID())
+			//	}
+			//}
+		} else {
+			fmt.Println("-------------------------")
+			fmt.Println("Reward Map is empty")
+			fmt.Println("-------------------------")
+
 		}
+	}
 	//}
 
 	if tx := reward.BuildAccountLockGoverningTx(chainTag, bestNum, curEpoch); tx != nil {
@@ -1086,12 +1085,12 @@ func (conR *ConsensusReactor) FinalizeCommitBlock(blkInfo *ProposedBlockInfo, be
 		}
 	}
 
-	if meter.IsMainNet() {
-		//if blk.Header().Number() == meter.TeslaMainnetStartNum {
-		if blk.Header().Number() == 0 {
-			script.EnterTeslaForkInit()
-		}
-	}
+	// if meter.IsMainNet() {
+	//if blk.Header().Number() == meter.TeslaMainnetStartNum {
+	// if blk.Header().Number() == 0 {
+	// script.EnterTeslaForkInit()
+	// }
+	// }
 
 	/*****
 

@@ -22,6 +22,12 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
+	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/p2p/discover"
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/inconshreveable/log15"
+	isatty "github.com/mattn/go-isatty"
 	"github.com/meterio/meter-pov/api"
 	"github.com/meterio/meter-pov/api/doc"
 	"github.com/meterio/meter-pov/block"
@@ -34,12 +40,6 @@ import (
 	"github.com/meterio/meter-pov/script"
 	"github.com/meterio/meter-pov/state"
 	"github.com/meterio/meter-pov/txpool"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/inconshreveable/log15"
-	"github.com/mattn/go-isatty"
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 	cli "gopkg.in/urfave/cli.v1"
@@ -238,8 +238,8 @@ func defaultAction(ctx *cli.Context) error {
 	}
 
 	// load preset config
-	if "warringstakes" == ctx.String(networkFlag.Name) {
-		config := preset.ShoalPresetConfig
+	if "test" == ctx.String(networkFlag.Name) {
+		config := preset.TestPresetConfig
 		ctx.Set("committee-min-size", strconv.Itoa(config.CommitteeMinSize))
 		ctx.Set("committee-max-size", strconv.Itoa(config.CommitteeMaxSize))
 		ctx.Set("delegate-max-size", strconv.Itoa(config.DelegateMaxSize))

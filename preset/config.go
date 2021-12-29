@@ -27,12 +27,12 @@ var (
 		DiscoTopic:       "mainnet",
 	}
 
-	ShoalPresetConfig = &PresetConfig{
+	TestPresetConfig = &PresetConfig{
 		CommitteeMinSize: 2,
 		CommitteeMaxSize: 300,
 		DelegateMaxSize:  500,
 		DiscoServer:      "enode://30fa4a57e203cfef6eb13b2fec75e17849fb9e0be41f7abfc5992955b8c86e4ef484f27efe0d6250ec95a4a871be4b8151727dc86f33d3acfeb92b394e702cbd@13.214.56.167:55555",
-		DiscoTopic:       "shoal",
+		DiscoTopic:       "testnet",
 	}
 )
 

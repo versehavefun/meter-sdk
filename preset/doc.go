@@ -5,4 +5,6 @@
 
 package preset
 
-//go:generate go-bindata -nometadata -ignore=.DS_Store -pkg preset -o bindata.go mainnet/... shoal/...
+//go:generate go-bindata -nometadata -ignore=.DS_Store -pkg preset -o bindata.go mainnet/... testnet/...
+// or
+//go:generate go-bindata -pkg=preset testnet mainnet
