@@ -26,7 +26,7 @@ sudo apt install libgmp3-dev
 ```
 git clone https://github.com/meterio/meter-pov.git
 
-//our next example is network warringstakes. make sure switch to release branch!!!
+//our next example is network testnet. make sure switch to release branch!!!
 git checkout release
 ```
 
@@ -48,5 +48,5 @@ Let's use an example as running meter in network "Herd", one of meter's internal
 
 invoke the following command. meter is running... 
 ```
-./meter --network warringstakes --verbosity 3 --api-addr 0.0.0.0:8669 --api-cors *
+./meter --network test --verbosity 3 --api-addr 0.0.0.0:8669 --api-cors *
 ```

@@ -108,7 +108,7 @@ bin/meter --network main
 Connect to VeChain's testnet:
 
 ```
-bin/meter --network warringstakes
+bin/meter --network test
 ```
 
 
@@ -162,12 +162,12 @@ The [Dockerfile](_docker/mainnet.Dockerfile) is designed to build the last relea
 
 Awesome explorers built by the meter team:
 
-- [Testnet Explorer](https://scan-warringstakes.meter.io/)
+- [Testnet Explorer](https://scan-test.meter.io/)
 - [Mainnet Explorer](https://scan.meter.io/)
 
 ## Faucet
 
-- [Testnet Faucet](https://faucet-warringstakes.meter.io/)
+- [Testnet Faucet](https://faucet-test.meter.io/)
 - [Mainnet Faucet](https://faucet.meter.io/)
 
 ## API
