@@ -119,6 +119,10 @@ func NewTestnet() *Genesis {
 			executor).
 		Call(
 			tx.NewClause(&builtin.Params.Address).WithData(mustEncodeInput(builtin.Params.ABI, "set", meter.KeyConsensusDelegateSize, meter.InitialConsensusDelegateSize)),
+			executor).
+		Call(tx.NewClause(&builtin.Params.Address).WithData(mustEncodeInput(builtin.Params.ABI, "set", meter.KeyNativeMtrERC20Address, big.NewInt(0).SetBytes(builtin.Meter.Address.Bytes()))),
+			executor).
+		Call(tx.NewClause(&builtin.Params.Address).WithData(mustEncodeInput(builtin.Params.ABI, "set", meter.KeyNativeMtrgERC20Address, big.NewInt(0).SetBytes(builtin.MeterGov.Address.Bytes()))),
 			executor)
 
 	id, err := builder.ComputeID()
