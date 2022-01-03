@@ -20,14 +20,18 @@ import (
 // Builtin contracts binding.
 var (
 	Params       = &paramsContract{mustLoadContract("Params")}
-	Meter        = &erc20Contract{mustLoadContract("MeterERC20")}         // erc20 contract 0x0000000000000000000000000000004d65746572
-	MeterGov     = &erc20Contract{mustLoadContract("MeterGovERC20")}      // erc20 contract 0x0000000000000000000000004d65746572476f76
-	MeterTracker = &meterTrackerContract{mustLoadContract("NewMeterNative")} // native call contract 0x0000000000000000004d657465724e6174697665
+	Meter        = &erc20Contract{mustLoadContract("MeterERC20")}
+	MeterGov     = &erc20Contract{mustLoadContract("MeterGovERC20")}
+	MeterTracker = &meterTrackerContract{mustLoadContract("NewMeterNative")}
 	Executor     = &executorContract{mustLoadContractAddress("Executor",
 		meter.InitialExecutorAccount)} //set the excutor address
 	Prototype = &prototypeContract{mustLoadContract("Prototype")}
 	Extension = &extensionContract{mustLoadContract("Extension")}
 	Measure   = mustLoadContract("Measure")
+
+	OldMeter        = &erc20Contract{mustLoadContract("Meter")}
+	OldMeterGov     = &erc20Contract{mustLoadContract("MeterGov")}
+	OldMeterTracker = &meterTrackerContract{mustLoadContract("MeterNative")}
 )
 
 type (

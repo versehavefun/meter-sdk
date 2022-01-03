@@ -21,8 +21,8 @@ const (
 	//EdisonTestnetStartNum      = 0
 
 	//chainID
-	MainnetChainID = 72 // 0x52 for mainnet
-	TestnetChainID = 36 // 0x53 for testnet
+	MainnetChainID = 36 // 0x24 for mainnet
+	TestnetChainID = 72 // 0x48 for testnet
 )
 
 // Tesla: The staking/auction release, Features include:
@@ -77,14 +77,16 @@ var (
 
 	// Genesis hashes to enforce below configs on.
 	//TODO: change me
-	GenesisHash = MustParseBytes32("0x00000000c84aab958ca2b62571fbeb1c891ae5c1c505283e04e84e6d0e844440")
-	log         = log15.New("pkg", "meter")
+	initGenesisHash = MustParseBytes32("0x0000000000000000000000000000000000000000000000000000000000000000")
+	MainGenesisHash = MustParseBytes32("0x000000008b54f747574b4d3e3297c3280e9f30a09b411232b817416ef477a7ec")
+	TestGenesisHash = MustParseBytes32("0x000000008b54f747574b4d3e3297c3280e9f30a09b411232b817416ef477a7ec")
+	log             = log15.New("pkg", "meter")
 )
 
 var (
 	// BlocktChainConfig is the chain parameters to run a node on the main network.
 	BlockChainConfig = &ChainConfig{
-		ChainGenesisID: GenesisHash,
+		ChainGenesisID: initGenesisHash,
 		ChainFlag:      "",
 		Initialized:    false,
 	}
