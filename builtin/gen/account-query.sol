@@ -11,7 +11,7 @@ contract AccountQuery {
     IMeterNative _meterTracker;
 
     constructor() public payable {
-       _meterTracker = IMeterNative(0x0000000000004e65774d657465724e6174697665);
+       _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
     }
 
     function name() public pure returns(string) {
