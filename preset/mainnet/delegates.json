@@ -2,20 +2,20 @@
   {
     "name": "main-01",
     "address": "0xACA5881062F126B3DC7D1AC28C4D94B26977C01F",
-    "pub_key": "BM4r90+GyqEHn/8e6BUg53OJxZ73SwGLLQUY8+ZwyskQMZtkvqxQNN0cInlMfh3PfgTTGVqpgUEYvLIGf/Gqw5c=:::cmd5cPmoR1CBliGfs0q9GF2KQnxMy4y+rnZyU6eL5uXzMhaenX6dAKu3mCwbYx19q6k3w/fjR3aiBUIQCdU+WQA=",
+    "pub_key": "BJE3CEi6Xui1SOupSJFG0z48v8+lrf8HUB3FEcqab0cTz2n/w1p9f5GbTRA5XqwlFnXXEVKE1KdQw1KTYxImp6s=:::fvirnPVgYQtUqEtmLFsUuAfN4PMUnvVnLV9ir03JKWZNl23x6HR5bH2EmIcrTtVsG50b/9LUUS5QyjiGUzu/LwE=",
     "voting_power": 100,
     "network_addr": {
-      "ip": "13.251.129.32",
+      "ip": "13.214.136.178",
       "port": 8670
     }
   },
   {
     "name": "main-02",
     "address": "0x8B4AAF30BCCE0375449B4128E5E6DF67316DCE1E",
-    "pub_key": "BOqEHvfhRTo01D8PQMWpT0XBov4fEps/aDyZISKoHYadaUpJa7pAETpsBFI36HN822nSCv/xZVZ79lzQFgrP6P0=:::R464mEmqtTX0OPhhjs3+eAlxloJ4b5REsANb29S8xc1fuLPuzVp3LS20ozLuS84/7AJkjHqoQG7x9z4iqiac5gA=",
+    "pub_key": "BKjKudF97B7PfggYmlivabD8HyIWpWP0JwUT5MHu8QItZL1tl5u3dOZQ5Uw5pNiLuYWsJErIkFvFfWclHetEAEE=:::lfv4LoAxf1Yv+P7ZNgcS+51lTNONv/HNe45F6gRsuaPk7hRze7bRBw3d/FVMLn2y1p3Q94JoMjh6X/QIFOJ6gQE=",
     "voting_power": 100,
     "network_addr": {
-      "ip": "13.212.147.111",
+      "ip": "13.212.158.190",
       "port": 8670
     }
   }
