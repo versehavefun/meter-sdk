@@ -2,20 +2,20 @@
   {
     "name": "test-01",
     "address": "0xACA5881062F126B3DC7D1AC28C4D94B26977C01F",
-    "pub_key": "BPBFYH3y+U3RrSNWbwqxoye2XEtC2ZKTh8ucywQQ8uVPUhlm7ophhd01xBgkGBJlS0IdkgV57oYSwPeyGRkIHMM=:::lRmECrcyeixJjxdkKlBZWELysAjb3Bt15n/GcxuLm706+hj5N+Md/Ph2wUZpp7tDAaTfgFbeQcsEHWTG9OlN0wE=",
+    "pub_key": "BDY39qCycDQJAiI03Rpb6c6ncLL5zly4brxWjnSMX63F35kt9djGi6Zf1XQpjYmwCvDSOteGtNucv5LJHqlkEIc=:::gn/WJQTi36S9YIReej4a9RaOZXnHAV+4Ftq/OUBL2Eq8gBDX04sEwtLpq9RuRvaoyB/ccG7eDfcI59eyT5ZZRQA=",
     "voting_power": 130,
     "network_addr": {
-      "ip": "13.214.56.167",
+      "ip": "13.251.129.32",
       "port": 8670
     }
   },
   {
     "name": "test-02",
     "address": "0x8B4AAF30BCCE0375449B4128E5E6DF67316DCE1E",
-    "pub_key": "BBW+IWNfV+5xQtliI8Epd3wM84Bcu2XRqOlLcHA+wylGWZoUiXYbBIORwtCBQDWLmQ41cWU8odwvtBf7bLkWo4s=:::TH/Gqtrco+zcdiE7Hc2cZl1kYs1oPrfAW4a4xGmfnM5BKMjD61tDnRp8UWign44sYi4wa9kWcCahvFOS+0GSFgA=",
+    "pub_key": "BJFLZ30HylzgwIYWmUlUeKkJ1jba1d0DH4MnIXz271OxueaZGaJ4Uo7xZIlDl0DEXY+mo0/R5Oo0v7U9oBR3AAQ=:::owAbN2Cg64Il0MMCdwC6uGGPyGftoxC7aRTm4ZwIC9MvMqfx0CWBcwyYTxHeWVE8g63zChPnxLmPs5jhjQBODQE=",
     "voting_power": 140,
     "network_addr": {
-      "ip": "13.214.121.186",
+      "ip": "13.212.147.111",
       "port": 8670
     }
   }
