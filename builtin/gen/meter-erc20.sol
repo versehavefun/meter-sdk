@@ -142,17 +142,17 @@ contract MeterERC20 is _Token {
     }
 
     function totalSupply() public view returns(uint256) {
-        return NewMeterNative(this).native_mtr_totalSupply();
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtr_totalSupply();
     }
 
     // @return energy that total burned.
     function totalBurned() public view returns(uint256) {
-        return NewMeterNative(this).native_mtr_totalBurned();
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtr_totalBurned();
     }
 
     function balanceOf(address _owner) public view returns(uint256 balance) {
-        return NewMeterNative(this).native_mtr_get(address (_owner));
-        
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtr_get(address (_owner));
+
     }
 
     function transfer(address _to, uint256 _amount) public returns(bool success) {
@@ -162,7 +162,7 @@ contract MeterERC20 is _Token {
 
     /// @notice It's not VIP180(ERC20)'s standard method. It allows master of `_from` or `_from` itself to transfer `_amount` of energy to `_to`.
     function move(address _from, address _to, uint256 _amount) public returns(bool success) {
-        require(_from == msg.sender || NewMeterNative(this).native_master(_from) == msg.sender, "builtin: self or master required");
+        require(_from == msg.sender || NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_master(_from) == msg.sender, "builtin: self or master required");
         _transfer(_from, _to, _amount);
         return true;
     }
@@ -187,9 +187,9 @@ contract MeterERC20 is _Token {
 
     function _transfer(address _from, address _to, uint256 _amount) internal {
         if (_amount > 0) {
-            require(NewMeterNative(this).native_mtr_sub(_from, _amount), "builtin: insufficient balance");
+            require(NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtr_sub(_from, _amount), "builtin: insufficient balance");
             // believed that will never overflow
-            NewMeterNative(this).native_mtr_add(_to, _amount);
+            NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtr_add(_to, _amount);
         }
         emit Transfer(_from, _to, _amount);
     }
@@ -211,16 +211,16 @@ contract MeterGovERC20 is _Token {
     }
 
     function totalSupply() public view returns(uint256) {
-        return NewMeterNative(this).native_mtrg_totalSupply();
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtrg_totalSupply();
     }
 
     // @return energy that total burned.
     function totalBurned() public view returns(uint256) {
-        return NewMeterNative(this).native_mtrg_totalBurned();
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtrg_totalBurned();
     }
 
     function balanceOf(address _owner) public view returns(uint256 balance) {
-        return NewMeterNative(this).native_mtrg_get(_owner);
+        return NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtrg_get(_owner);
     }
 
     function transfer(address _to, uint256 _amount) public returns(bool success) {
@@ -230,7 +230,7 @@ contract MeterGovERC20 is _Token {
 
     /// @notice It's not VIP180(ERC20)'s standard method. It allows master of `_from` or `_from` itself to transfer `_amount` of energy to `_to`.
     function move(address _from, address _to, uint256 _amount) public returns(bool success) {
-        require(_from == msg.sender || NewMeterNative(this).native_master(_from) == msg.sender, "builtin: self or master required");
+        require(_from == msg.sender || NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_master(_from) == msg.sender, "builtin: self or master required");
         _transfer(_from, _to, _amount);
         return true;
     }
@@ -255,9 +255,9 @@ contract MeterGovERC20 is _Token {
 
     function _transfer(address _from, address _to, uint256 _amount) internal {
         if (_amount > 0) {
-            require(NewMeterNative(this).native_mtrg_sub(_from, _amount), "builtin: insufficient balance");
+            require(NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtrg_sub(_from, _amount), "builtin: insufficient balance");
             // believed that will never overflow
-            NewMeterNative(this).native_mtrg_add(_to, _amount);
+            NewMeterNative(0x0000000000004E65774D657465724E6174697665).native_mtrg_add(_to, _amount);
         }
         emit Transfer(_from, _to, _amount);
     }
