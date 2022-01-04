@@ -50,13 +50,14 @@ func NewTestnet() *Genesis {
 			SetAccountLockProfileState(profiles, state)
 
 			// setup builtin contracts
-			state.SetCode(builtin.Meter.Address, builtin.Meter.RuntimeBytecodes())               // 0x000000000000000000004d657465724552433230
-			state.SetCode(builtin.MeterGov.Address, builtin.MeterGov.RuntimeBytecodes())         // 0x000000000000004d65746572476f764552433230
 			state.SetCode(builtin.MeterTracker.Address, builtin.MeterTracker.RuntimeBytecodes()) // 0x0000000000004e65774d657465724e6174697665
-			state.SetCode(builtin.Executor.Address, builtin.Executor.RuntimeBytecodes())         // 0x72c49458728c5661f19bcab6da76d96ae94e6e83
-			state.SetCode(builtin.Params.Address, builtin.Params.RuntimeBytecodes())             // 0x0000000000000000000000000000506172616d73
-			state.SetCode(builtin.Prototype.Address, builtin.Prototype.RuntimeBytecodes())       // 0x000000000000000000000050726f746f74797065
-			state.SetCode(builtin.Extension.Address, builtin.Extension.RuntimeBytecodes())       // 0x0000000000000000000000457874656e73696f6e
+
+			state.SetCode(builtin.Meter.Address, builtin.Meter.RuntimeBytecodes())         // 0x000000000000000000004d657465724552433230
+			state.SetCode(builtin.MeterGov.Address, builtin.MeterGov.RuntimeBytecodes())   // 0x000000000000004d65746572476f764552433230
+			state.SetCode(builtin.Executor.Address, builtin.Executor.RuntimeBytecodes())   // 0x72c49458728c5661f19bcab6da76d96ae94e6e83
+			state.SetCode(builtin.Params.Address, builtin.Params.RuntimeBytecodes())       // 0x0000000000000000000000000000506172616d73
+			state.SetCode(builtin.Prototype.Address, builtin.Prototype.RuntimeBytecodes()) // 0x000000000000000000000050726f746f74797065
+			state.SetCode(builtin.Extension.Address, builtin.Extension.RuntimeBytecodes()) // 0x0000000000000000000000457874656e73696f6e
 
 			//state.SetCode(builtin.OldMeter.Address, builtin.OldMeter.RuntimeBytecodes())               // 0x0000000000000000000000000000004d65746572
 			//state.SetCode(builtin.OldMeterGov.Address, builtin.OldMeterGov.RuntimeBytecodes())         // 0x0000000000000000000000004d65746572476f76
