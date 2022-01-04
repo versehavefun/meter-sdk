@@ -166,7 +166,7 @@ func init() {
 			env.UseGas(meter.GetBalanceGas)
 			ok := false
 			//if meter.IsTestNet() || (meter.IsMainNet() && env.BlockContext().Number > meter.Tesla1_1MainnetStartNum) {
-				ok = MeterTracker.Native(env.State()).SubMeterGov(meter.Address(args.Addr), args.Amount)
+			ok = MeterTracker.Native(env.State()).SubMeterGov(meter.Address(args.Addr), args.Amount)
 			//} else {
 			//	ok = MeterTracker.Native(env.State()).Tesla1_0_SubMeterGov(meter.Address(args.Addr), args.Amount)
 			//}
@@ -228,8 +228,8 @@ func init() {
 			return []interface{}{master}
 		}},
 	}
-	//abi := GetContractABI("NewMeterNative")
-	abi := GetContractABIForNewMeterNative()
+	abi := GetContractABI("NewMeterNative")
+	// abi := GetContractABIForNewMeterNative()
 	for _, def := range defines {
 		if method, found := abi.MethodByName(def.name); found {
 			nativeMethods[methodKey{MeterTracker.Address, method.ID()}] = &nativeMethod{

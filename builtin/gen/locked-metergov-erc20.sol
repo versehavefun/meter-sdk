@@ -9,26 +9,22 @@ import "./imeternative.sol";
 
 contract StakededMeterGovERC20 is _Token {
     mapping(address => mapping(address => uint256)) allowed;
-    IMeterNative _meterTracker;
+    IMeterNative constant _meterTracker =
+        IMeterNative(0x0000000000004E65774D657465724E6174697665); // NewMeterNative
 
-    constructor() public payable {
-       _meterTracker = IMeterNative(0x0000000000000000004D657465724e6174697665); 
-    }
-
-    function name() public pure returns(string) {
+    function name() public pure returns (string) {
         return "StakedMeterGov";
     }
 
-    function decimals() public pure returns(uint8) {
+    function decimals() public pure returns (uint8) {
         return 18;
     }
 
-    function symbol() public pure returns(string) {
+    function symbol() public pure returns (string) {
         return "STAKEDMTRG";
     }
 
-    function balanceOf(address _owner) public view returns(uint256 balance) {
+    function balanceOf(address _owner) public view returns (uint256 balance) {
         return _meterTracker.native_mtrg_locked_get(_owner);
     }
 }
-

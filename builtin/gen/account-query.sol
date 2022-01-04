@@ -8,30 +8,42 @@ import "./imeternative.sol";
 
 /// @title Meter implements VIP180(ERC20) standard, to present Meter/ Meter Gov tokens.
 contract AccountQuery {
-    IMeterNative _meterTracker;
+    IMeterNative constant _meterTracker =
+        IMeterNative(0x0000000000004E65774D657465724E6174697665); // NewMeterNative
 
-    constructor() public payable {
-       _meterTracker = IMeterNative(0x0000000000000000004D657465724e6174697665);
-    }
-
-    function name() public pure returns(string) {
+    function name() public pure returns (string) {
         return "AccountQuery";
     }
 
-    function balanceOfMtr(address _owner) public view returns(uint256 balance) {
-        return _meterTracker.native_mtr_get(address (_owner));    
+    function balanceOfMtr(address _owner)
+        public
+        view
+        returns (uint256 balance)
+    {
+        return _meterTracker.native_mtr_get(address(_owner));
     }
 
-    function balanceOfMtrg(address _owner) public view returns(uint256 balance) {
-        return _meterTracker.native_mtrg_get(address (_owner));
+    function balanceOfMtrg(address _owner)
+        public
+        view
+        returns (uint256 balance)
+    {
+        return _meterTracker.native_mtrg_get(address(_owner));
     }
 
-    function balanceOfBoundMtr(address _owner) public view returns(uint256 balance) {
-        return _meterTracker.native_mtr_locked_get(address (_owner));
+    function balanceOfBoundMtr(address _owner)
+        public
+        view
+        returns (uint256 balance)
+    {
+        return _meterTracker.native_mtr_locked_get(address(_owner));
     }
 
-    function balanceOfBoundMtrg(address _owner) public view returns(uint256 balance) {
-        return _meterTracker.native_mtrg_locked_get(address (_owner));
-    }    
-
+    function balanceOfBoundMtrg(address _owner)
+        public
+        view
+        returns (uint256 balance)
+    {
+        return _meterTracker.native_mtrg_locked_get(address(_owner));
+    }
 }
