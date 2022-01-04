@@ -5,13 +5,13 @@
 
 pragma solidity 0.4.24;
 import "./token.sol";
-import "./meternative.sol";
+import "./imeternative.sol";
 
 /// @title Meter implements VIP180(ERC20) standard, to present Meter/ Meter Gov tokens.
 contract MeterERC20 is _Token {
     mapping(address => mapping(address => uint256)) allowed;
 
-    NewMeterNative _meterTracker = NewMeterNative(0x0000000000004E65774D657465724E6174697665);
+    IMeterNative _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
         return "STP Token";
@@ -82,7 +82,7 @@ contract MeterERC20 is _Token {
 contract MeterGovERC20 is _Token {
     mapping(address => mapping(address => uint256)) allowed;
 
-    NewMeterNative _meterTracker = NewMeterNative(0x0000000000004E65774D657465724E6174697665);
+    IMeterNative _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
         return "Verse Network";
