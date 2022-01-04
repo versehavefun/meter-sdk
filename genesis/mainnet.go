@@ -9,7 +9,6 @@ import (
 	"math/big"
 
 	"github.com/meterio/meter-pov/builtin"
-	"github.com/meterio/meter-pov/builtin/gen"
 	"github.com/meterio/meter-pov/meter"
 	"github.com/meterio/meter-pov/state"
 	"github.com/meterio/meter-pov/tx"
@@ -33,7 +32,7 @@ func NewMainnet() *Genesis {
 			// alloc builtin contracts
 			state.SetCode(builtin.Meter.Address, builtin.Meter.RuntimeBytecodes())             // before 0x0000000000000000000000000000004d65746572, after 0x000000000000000000004d657465724552433230
 			state.SetCode(builtin.MeterGov.Address, builtin.MeterGov.RuntimeBytecodes())       // before 0x0000000000000000000000004d65746572476f76, after 0x000000000000004d65746572476f764552433230
-			state.SetCode(builtin.MeterTracker.Address, gen.Compiled2NewmeternativeBinRuntime) // addr 0x0000000000000000004d657465724e6174697665
+			state.SetCode(builtin.MeterTracker.Address, builtin.MeterTracker.RuntimeBytecodes()) // addr 0x0000000000000000004d657465724e6174697665
 			state.SetCode(builtin.Executor.Address, []byte{})                                  // addr meter.InitialExecutorAccount
 			state.SetCode(builtin.Extension.Address, builtin.Extension.RuntimeBytecodes())     // addr 0x0000000000000000000000457874656e73696f6e
 			state.SetCode(builtin.Params.Address, builtin.Params.RuntimeBytecodes())           // addr 0x0000000000000000000000000000506172616d73
