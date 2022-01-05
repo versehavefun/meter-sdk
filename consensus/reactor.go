@@ -1220,7 +1220,7 @@ func (conR *ConsensusReactor) CheckEstablishedCommittee(kHeight uint32) bool {
 
 func (conR *ConsensusReactor) JoinEstablishedCommittee(kBlock *block.Block, replay bool) {
 	var nonce uint64
-	var info *powpool.PowBlockInfo
+	//var info *powpool.PowBlockInfo
 	kBlockHeight := kBlock.Header().Number()
 	if kBlock.Header().Number() == 0 {
 		nonce = genesis.GenesisNonce
@@ -1243,14 +1243,14 @@ func (conR *ConsensusReactor) JoinEstablishedCommittee(kBlock *block.Block, repl
 		//pool := powpool.GetGlobPowPoolInst()
 		//pool.Wash()
 		//pool.InitialAddKframe(info)
-		conR.logger.Info("JoinEstablishedCommittee PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", info.PowHeight)
+		conR.logger.Info("JoinEstablishedCommittee PowPool initial added kblock", "kblock height", kBlock.Header().Number())
 
-		if replay == true {
+		//if replay == true {
 			//kblock is already added to pool, should start with next one
-			startHeight := info.PowHeight + 1
-			conR.logger.Info("Replay", "replay from powHeight", startHeight)
+			//startHeight := info.PowHeight + 1
+			//conR.logger.Info("Replay", "replay from powHeight", startHeight)
 			//pool.ReplayFrom(int32(startHeight))
-		}
+		//}
 		conR.inCommittee = true
 		inCommitteeGauge.Set(1)
 	} else {
