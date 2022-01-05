@@ -11,7 +11,7 @@ import "./imeternative.sol";
 contract MeterERC20 is _Token {
     mapping(address => mapping(address => uint256)) allowed;
 
-    IMeterNative _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
+    IMeterNative constant _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
         return "STP Token";
@@ -82,7 +82,7 @@ contract MeterERC20 is _Token {
 contract MeterGovERC20 is _Token {
     mapping(address => mapping(address => uint256)) allowed;
 
-    IMeterNative _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
+    IMeterNative constant _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
         return "Verse Network";
