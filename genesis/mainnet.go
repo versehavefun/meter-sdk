@@ -51,7 +51,7 @@ func NewMainnet() *Genesis {
 				state.SetEnergy(p.Addr, p.MeterAmount)
 				energySupply.Add(energySupply, p.MeterAmount)
 			}
-			// SetAccountLockProfileState(profiles, state)
+			SetAccountLockProfileState(profiles, state)
 
 			builtin.MeterTracker.Native(state).SetInitialSupply(tokenSupply, energySupply)
 			return nil
