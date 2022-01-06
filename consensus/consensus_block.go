@@ -754,7 +754,7 @@ func (conR *ConsensusReactor) BuildKBlock(parentBlock *block.Block, data *block.
 		//	rewardMap, err = reward.ComputeRewardMapV2(epochBaseReward, epochTotalReward, conR.curDelegates.Delegates, conR.curCommittee.Validators)
 		//}
 
-		if err == nil && len(rewardMap) > 0 {
+		if err == nil {
 			distList := rewardMap.GetDistList()
 			fmt.Println("**** Dist List")
 			for _, d := range distList {
@@ -782,11 +782,11 @@ func (conR *ConsensusReactor) BuildKBlock(parentBlock *block.Block, data *block.
 			//		conR.logger.Info("autobid tx appended", "txid", tx.ID())
 			//	}
 			//}
-		} else {
-			fmt.Println("-------------------------")
-			fmt.Println("Reward Map is empty")
-			fmt.Println("-------------------------")
-
+		//} else {
+		//	fmt.Println("-------------------------")
+		//	fmt.Println("Reward Map is empty")
+		//	fmt.Println("-------------------------")
+		//
 		}
 	}
 	//}
