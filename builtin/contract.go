@@ -72,21 +72,12 @@ func (c *contract) NativeABI() *abi.ABI {
 	return abi
 }
 
-func GetContractABI(name string) *abi.ABI {
-	asset := "compiled/" + name + ".abi"
+func (c *contract) GetContractABI() *abi.ABI {
+	asset := "compiled/" + c.name + ".abi"
 	data := gen.MustAsset(asset)
 	abi, err := abi.New(data)
 	if err != nil {
-		panic(errors.Wrap(err, "load ABI for '"+name+"'"))
-	}
-	return abi
-}
-
-func GetContractABIForNewMeterNative() *abi.ABI {
-	data := []byte(gen.NewMeterNative_abi)
-	abi, err := abi.New(data)
-	if err != nil {
-		panic(errors.Wrap(err, "load ABI for NewMeterNative"))
+		panic(errors.Wrap(err, "load ABI for '"+c.name+"'"))
 	}
 	return abi
 }

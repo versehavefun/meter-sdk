@@ -8,11 +8,7 @@ import "./imeternative.sol";
 
 /// @title Meter implements VIP180(ERC20) standard, to present Meter/ Meter Gov tokens.
 contract AccountQuery {
-    IMeterNative _meterTracker;
-
-    constructor() public payable {
-       _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
-    }
+    IMeterNative constant _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
         return "AccountQuery";

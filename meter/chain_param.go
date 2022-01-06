@@ -79,7 +79,7 @@ var (
 	//TODO: change me
 	initGenesisHash = MustParseBytes32("0x0000000000000000000000000000000000000000000000000000000000000000")
 	MainGenesisHash = MustParseBytes32("0x000000008b54f747574b4d3e3297c3280e9f30a09b411232b817416ef477a7ec")
-	TestGenesisHash = MustParseBytes32("0x000000000c4fa1212105004b4b019b9f4634904e874f636de2e931d0beb8af96")
+	TestGenesisHash = MustParseBytes32("0x0000000082e29af2e98ce6569e73743e530497877ea786406e99ea336f6e6561")
 	log             = log15.New("pkg", "meter")
 )
 

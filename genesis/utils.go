@@ -58,16 +58,7 @@ var profiles [][5]string = [][5]string{
 	{"0x9f4a27264Cc89cfb0D385881C348551e4009918F", "6.24", "0", "da qi", "24"},
 	{"0x25aA205E81b442A2760aF51A1d8C7D708868F9bA", "1236.20", "0", "Shuai", "24"},
 	{"0xfd746a652b3a3A81bAA01CB92faE5ba4C32c3667", "540.10", "0", "Tony Wang", "24"},
-	{"0xf53E2Edf6d35c163e23F196faA49aB7181322d1e", "1437.78", "1700000", "sdk Dong", "3"},
-	{"0x673c8e958302bd7cca53112bc04b2adab7e66faf", "3950.43", "0", "xiaofo peng you", "24"},
-	{"0xd90401e403834aa42850c4d2a7049d68dfd2ecd7", "500.00", "0", "jian fei", "24"},
-	{"0xcc79e77273e6d4e9c2eb078bbe11a8071ed08a47", "1500.00", "0", "Jennifer", "24"},
-	{"0x5bfef0997ce0ea62cb29fffb28ad2e187e51af26", "10", "0", "name 1", "24"},
-	{"0xec6c5ba4653ed015d6ed65bf385123eb0e479ab6", "16.50", "0", "name 2", "24"},
-	{"0x9e0a6279edfaa778529a4212ba6dca667a7f41d2", "49.50", "0", "name 3", "24"},
-	{"0xf531583d59056fceb07d577a9187eda9d12e6dda", "16.50", "0", "name 4", "24"},
-	{"0x5d4dab27103450a0dbc2f71942023ebb27cd2310", "16.50", "0", "name 5", "24"},
-	{"0xd8d58db373fc83258b26409248cc481af8395ffa", "33.00", "0", "name 6", "24"},
+	{"0xf53E2Edf6d35c163e23F196faA49aB7181322d1e", "10", "10", "sdk Dong", "3"},
 }
 
 func LoadVestProfile() []*accountlock.Profile {
