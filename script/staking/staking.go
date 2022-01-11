@@ -63,7 +63,7 @@ func NewStaking(ch *chain.Chain, sc *state.Creator) *Staking {
 
 	d, e := boundEvent.Encode(big.NewInt(1000000000000000000), big.NewInt(int64(meter.STPT)))
 	fmt.Println(hex.EncodeToString(d), e)
-	d, e = unboundEvent.Encode(big.NewInt(1000000000000000000), big.NewInt(int64(meter.VERSE)))
+	d, e = unboundEvent.Encode(big.NewInt(1000000000000000000), big.NewInt(int64(meter.STPD)))
 	fmt.Println(hex.EncodeToString(d), e)
 
 	staking := &Staking{

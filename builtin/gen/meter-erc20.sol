@@ -83,7 +83,7 @@ contract MeterGovERC20 is _Token {
     IMeterNative constant _meterTracker = IMeterNative(0x0000000000004E65774D657465724E6174697665);
 
     function name() public pure returns(string) {
-        return "Verse Network";
+        return "STP DAO";
     }
 
     function decimals() public pure returns(uint8) {
@@ -91,7 +91,7 @@ contract MeterGovERC20 is _Token {
     }
 
     function symbol() public pure returns(string) {
-        return "VERSE";
+        return "STPD";
     }
 
     function totalSupply() public view returns(uint256) {

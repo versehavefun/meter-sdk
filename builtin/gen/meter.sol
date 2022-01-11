@@ -87,7 +87,7 @@ contract MeterGov is _Token {
     }
 
     function symbol() public pure returns(string) {
-        return "VERSE";
+        return "STPD";
     }
 
     function totalSupply() public view returns(uint256) {

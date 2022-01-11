@@ -24,7 +24,7 @@ type Bucket struct {
 
 	//non-key fields
 	Value        *big.Int      // staking unit Wei
-	Token        uint8         // token type STPT / VERSE
+	Token        uint8         // token type STPT / STPD
 	Unbounded    bool          // this bucket is unbounded, get rid of it after mature
 	Candidate    meter.Address // candidate
 	Rate         uint8         // bounus rate

@@ -128,7 +128,7 @@ func (a *Auction) SendMTRGToBidder(addr meter.Address, amount *big.Int, stateDB 
 	}
 	// in auction, MeterGov is mint action.
 	stateDB.MintBalance(common.Address(addr), amount)
-	env.AddTransfer(meter.ZeroAddress, addr, amount, meter.VERSE)
+	env.AddTransfer(meter.ZeroAddress, addr, amount, meter.STPD)
 	return
 }
 

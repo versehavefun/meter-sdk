@@ -282,7 +282,7 @@ paths:
         - Logs
       summary: Filter transfer logs
       description: |
-        Transfer logs are recorded on VERSE transferring.
+        Transfer logs are recorded on STPD transferring.
       requestBody:
         required: true
         content:

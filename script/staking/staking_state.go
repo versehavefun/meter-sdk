@@ -381,7 +381,7 @@ func (s *Staking) BoundAccountMeterGov(addr meter.Address, amount *big.Int, stat
 		meter.Bytes32(boundEvent.ID()),
 		meter.BytesToBytes32(addr.Bytes()),
 	}
-	data, err := boundEvent.Encode(amount, big.NewInt(int64(meter.VERSE)))
+	data, err := boundEvent.Encode(amount, big.NewInt(int64(meter.STPD)))
 	if err != nil {
 		fmt.Println("could not encode data for bound")
 	}
@@ -412,7 +412,7 @@ func (s *Staking) UnboundAccountMeterGov(addr meter.Address, amount *big.Int, st
 		meter.Bytes32(unboundEvent.ID()),
 		meter.BytesToBytes32(addr.Bytes()),
 	}
-	data, err := unboundEvent.Encode(amount, big.NewInt(int64(meter.VERSE)))
+	data, err := unboundEvent.Encode(amount, big.NewInt(int64(meter.STPD)))
 	if err != nil {
 		fmt.Println("could not encode data for unbound")
 	}
@@ -435,7 +435,7 @@ func (s *Staking) CollectBailMeterGov(addr meter.Address, amount *big.Int, state
 
 	state.SubBalance(addr, amount)
 	state.AddBalance(StakingModuleAddr, amount)
-	env.AddTransfer(addr, StakingModuleAddr, amount, meter.VERSE)
+	env.AddTransfer(addr, StakingModuleAddr, amount, meter.STPD)
 	return nil
 }
 

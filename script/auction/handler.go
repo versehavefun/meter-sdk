@@ -19,7 +19,7 @@ var (
 	// normal min amount is 10 mtr, autobid is 0.1 mtr
 	MinimumBidAmount = new(big.Int).Mul(big.NewInt(10), big.NewInt(1e18))
 	AutobidMinAmount = big.NewInt(1e17)
-	// AuctionReservedPrice = big.NewInt(5e17) // at least  1 VERSE settle down 0.5 STPT
+	// AuctionReservedPrice = big.NewInt(5e17) // at least  1 STPD settle down 0.5 STPT
 )
 
 // Candidate indicates the structure of a candidate
