@@ -243,7 +243,7 @@ func (rt *Runtime) newEVM(stateDB *statedb.StateDB, clauseIndex uint32, txCtx *x
 	return vm.NewEVM(vm.Context{
 		CanTransfer: func(_ vm.StateDB, addr common.Address, amount *big.Int, token byte) bool {
 			if !meter.Address(addr).IsZero() {
-				if token == meter.VERSE {
+				if token == meter.STPD {
 					return stateDB.GetBalance(addr).Cmp(amount) >= 0
 				} else /*if token == meter.STPT*/ {
 					// XXX. add gas fee in comparasion
@@ -269,14 +269,14 @@ func (rt *Runtime) newEVM(stateDB *statedb.StateDB, clauseIndex uint32, txCtx *x
 			***************/
 			// mint transaction (sender is zero) means mint token, otherwise is regular transfer
 			if meter.Address(sender).IsZero() {
-				if token == meter.VERSE {
+				if token == meter.STPD {
 					stateDB.MintBalance(recipient, amount)
 				} else if token == meter.STPT {
 					stateDB.MintEnergy(recipient, amount)
 				}
 			} else {
 				//regular transfer
-				if token == meter.VERSE {
+				if token == meter.STPD {
 					stateDB.SubBalance(common.Address(sender), amount)
 					stateDB.AddBalance(common.Address(recipient), amount)
 				} else if token == meter.STPT {
@@ -434,7 +434,7 @@ func (rt *Runtime) newEVM(stateDB *statedb.StateDB, clauseIndex uint32, txCtx *x
 					Sender:    meter.Address(contractAddr),
 					Recipient: meter.Address(tokenReceiver),
 					Amount:    amount,
-					Token:     meter.VERSE,
+					Token:     meter.STPD,
 				})
 			}
 		},

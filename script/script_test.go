@@ -238,7 +238,7 @@ func TestSummary1(t *testing.T) {
 	// 	fmt.Println("AUCTION ID mismatch")
 	// }
 	// if bytes.Compare(s1.RlsdMTRG.Bytes(), s2.RlsdMTRG.Bytes()) != 0 || bytes.Compare(s3.RlsdMTRG.Bytes(), s2.RlsdMTRG.Bytes()) != 0 || bytes.Compare(s1.RlsdMTRG.Bytes(), s3.RlsdMTRG.Bytes()) != 0 {
-	// 	fmt.Println("RELEASED VERSE mismatch")
+	// 	fmt.Println("RELEASED STPD mismatch")
 	// 	fmt.Println(hex.EncodeToString(s1.RlsdMTRG.Bytes()))
 	// 	fmt.Println(hex.EncodeToString(s2.RlsdMTRG.Bytes()))
 	// 	fmt.Println(hex.EncodeToString(s3.RlsdMTRG.Bytes()))
@@ -253,7 +253,7 @@ func TestSummary1(t *testing.T) {
 	// 	fmt.Println("Actual Price mismatch")
 	// }
 	// if bytes.Compare(s1.LeftoverMTRG.Bytes(), s2.LeftoverMTRG.Bytes()) != 0 || bytes.Compare(s3.LeftoverMTRG.Bytes(), s2.LeftoverMTRG.Bytes()) != 0 || bytes.Compare(s1.LeftoverMTRG.Bytes(), s3.LeftoverMTRG.Bytes()) != 0 {
-	// 	fmt.Println("Leftover VERSE mismatch")
+	// 	fmt.Println("Leftover STPD mismatch")
 	// 	fmt.Println(hex.EncodeToString(s1.LeftoverMTRG.Bytes()))
 	// 	fmt.Println(hex.EncodeToString(s2.LeftoverMTRG.Bytes()))
 	// 	fmt.Println(hex.EncodeToString(s3.LeftoverMTRG.Bytes()))

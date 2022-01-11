@@ -37,10 +37,10 @@ var (
 	errUpdateForeverBucket  = errors.New("can't update forever bucket")
 
 	// amount
-	errLessThanMinimalBalance  = errors.New("amount less than minimal balance (" + new(big.Int).Div(MIN_REQUIRED_BY_DELEGATE, big.NewInt(1e18)).String() + " VERSE)")
-	errLessThanMinBoundBalance = errors.New("amount less than minimal balance (" + new(big.Int).Div(MIN_BOUND_BALANCE, big.NewInt(1e18)).String() + " VERSE)")
+	errLessThanMinimalBalance  = errors.New("amount less than minimal balance (" + new(big.Int).Div(MIN_REQUIRED_BY_DELEGATE, big.NewInt(1e18)).String() + " STPD)")
+	errLessThanMinBoundBalance = errors.New("amount less than minimal balance (" + new(big.Int).Div(MIN_BOUND_BALANCE, big.NewInt(1e18)).String() + " STPD)")
 	errNotEnoughMTR            = errors.New("not enough STPT")
-	errNotEnoughMTRG           = errors.New("not enough VERSE")
+	errNotEnoughMTRG           = errors.New("not enough STPD")
 
 	// candidate
 	errCandidateNotListed          = errors.New("candidate address is not listed")
@@ -170,7 +170,7 @@ func (sb *StakingBody) BoundHandler(env *StakingEnv, gas uint64) (leftOverGas ui
 		if state.GetEnergy(sb.HolderAddr).Cmp(sb.Amount) < 0 {
 			err = errors.New("not enough meter balance")
 		}
-	case meter.VERSE:
+	case meter.STPD:
 		if state.GetBalance(sb.HolderAddr).Cmp(sb.Amount) < 0 {
 			err = errors.New("not enough meter-gov balance")
 		}
@@ -223,7 +223,7 @@ func (sb *StakingBody) BoundHandler(env *StakingEnv, gas uint64) (leftOverGas ui
 	switch sb.Token {
 	case meter.STPT:
 		err = staking.BoundAccountMeter(sb.HolderAddr, sb.Amount, state, env)
-	case meter.VERSE:
+	case meter.STPD:
 		err = staking.BoundAccountMeterGov(sb.HolderAddr, sb.Amount, state, env)
 	default:
 		err = errInvalidToken
@@ -317,7 +317,7 @@ func (sb *StakingBody) CandidateHandler(env *StakingEnv, gas uint64) (leftOverGa
 		if state.GetEnergy(sb.CandAddr).Cmp(sb.Amount) < 0 {
 			err = errNotEnoughMTR
 		}
-	case meter.VERSE:
+	case meter.STPD:
 		if state.GetBalance(sb.CandAddr).Cmp(sb.Amount) < 0 {
 			err = errNotEnoughMTRG
 		}
@@ -405,7 +405,7 @@ func (sb *StakingBody) CandidateHandler(env *StakingEnv, gas uint64) (leftOverGa
 	switch sb.Token {
 	case meter.STPT:
 		err = staking.BoundAccountMeter(sb.CandAddr, sb.Amount, state, env)
-	case meter.VERSE:
+	case meter.STPD:
 		err = staking.BoundAccountMeterGov(sb.CandAddr, sb.Amount, state, env)
 	default:
 		//leftOverGas = gas
@@ -693,7 +693,7 @@ func (sb *StakingBody) GoverningHandler(env *StakingEnv, gas uint64) (leftOverGa
 				switch bkt.Token {
 				case meter.STPT:
 					err = staking.UnboundAccountMeter(bkt.Owner, bkt.Value, state, env)
-				case meter.VERSE:
+				case meter.STPD:
 					err = staking.UnboundAccountMeterGov(bkt.Owner, bkt.Value, state, env)
 				default:
 					err = errors.New("Invalid token parameter")

@@ -16,7 +16,7 @@ import (
 const (
 	// --------------------- Epoch --------------------------
 	STPT  = byte(0)
-	VERSE = byte(1)
+	STPD = byte(1)
 	// minimum height for committee relay.
 	NPowBlockPerEpoch    = 60   // epoch time (normaly 1 pow block takes 1 minutes)
 	MaxNPowBlockPerEpoch = 3000 // if too many pow blocks need to be packed in kblock, truncate to the last 3000 pow blocks
@@ -35,7 +35,7 @@ const (
 	MaxNClausePerAutobidTx = 1000
 
 	// auction release mtrg (new version)
-	AuctionReleaseBase      = 40000000 // total base of 400M VERSE
+	AuctionReleaseBase      = 40000000 // total base of 400M STPD
 	AuctionReleaseInflation = 5e16     // yoy 5%, in unit of wei (aka. 1e18)
 
 	//  ------------------ Basics ----------------------------
@@ -131,7 +131,7 @@ var (
 	InitialPowPoolCoefFadeRate   = new(big.Int).Mul(big.NewInt(5), big.NewInt(1e17))                  // fade rate initial with 0.5
 	InitialValidatorBenefitRatio = big.NewInt(4e17)                                                   //40% percent of total auciton gain
 	InitialValidatorBaseReward   = new(big.Int).Mul(big.NewInt(25), big.NewInt(1e16))                 // base reward for each validator 0.25
-	InitialAuctionReservedPrice  = big.NewInt(5e17)                                                   // 1 VERSE settle with 0.5 STPT
+	InitialAuctionReservedPrice  = big.NewInt(5e17)                                                   // 1 STPD settle with 0.5 STPT
 	InitialMinRequiredByDelegate = new(big.Int).Mul(big.NewInt(int64(300)), big.NewInt(int64(1e18)))  // minimium require for delegate is 300 mtrg
 	InitialAuctionInitRelease    = new(big.Int).Mul(big.NewInt(int64(1000)), big.NewInt(int64(1e18))) // auction reward initial release, is 1000
 
