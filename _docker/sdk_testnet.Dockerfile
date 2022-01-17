@@ -1,4 +1,4 @@
-FROM dfinlab/meter-pos:latest AS pos
+FROM dfinlab/sdk_pos:testnet AS pos
 #FROM dfinlab/meter-pow:latest AS pow
 
 FROM ubuntu:18.04
@@ -49,5 +49,5 @@ RUN touch /var/log/supervisor/pos-stderr.log
 
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update="/reset.sh"
 
-EXPOSE 8668 8669 8670 11235 11235/udp 55555/udp 8332 9209
+EXPOSE 8668 8669 8670 11235 11235/udp 55555/udp
 ENTRYPOINT [ "/usr/bin/supervisord" ]
