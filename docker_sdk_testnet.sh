@@ -6,7 +6,7 @@
 # with two tags (latest & $version)
 
 VERSION=$(cat cmd/meter/VERSION)
-POS_DOCKER_REPO=dfinlab/sdk_pos
+POS_DOCKER_REPO=dfinlab/sdk_beta_pos
 #POW_DOCKER_RPEO=meterio/pow
 #POW_STATIC_TAG=$POW_DOCKER_RPEO:mainnet
 
@@ -14,7 +14,7 @@ POS_DOCKERFILE=_docker/sdk_pos.Dockerfile
 POS_VERSION_TAG=$POS_DOCKER_REPO:$VERSION
 POS_STATIC_TAG=$POS_DOCKER_REPO:testnet
 
-FULL_DOCKER_REPO=dfinlab/sdk_testnet
+FULL_DOCKER_REPO=dfinlab/sdk_beta_testnet
 FULL_DOCKERFILE=_docker/sdk_testnet.Dockerfile
 FULL_VERSION_TAG=$FULL_DOCKER_REPO:tesla
 FULL_STATIC_TAG=$FULL_DOCKER_REPO:latest

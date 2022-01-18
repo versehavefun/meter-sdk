@@ -1,4 +1,4 @@
-FROM dfinlab/sdk_pos:testnet AS pos
+FROM dfinlab/sdk_beta_pos:testnet AS pos
 #FROM dfinlab/meter-pow:latest AS pow
 
 FROM ubuntu:18.04
