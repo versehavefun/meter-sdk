@@ -31,7 +31,7 @@ var (
 		CommitteeMinSize: 2,
 		CommitteeMaxSize: 300,
 		DelegateMaxSize:  500,
-		DiscoServer:      "enode://30fa4a57e203cfef6eb13b2fec75e17849fb9e0be41f7abfc5992955b8c86e4ef484f27efe0d6250ec95a4a871be4b8151727dc86f33d3acfeb92b394e702cbd@13.214.56.167:55555",
+		DiscoServer:      "enode://e08e41a5413fef6b9bcdb9b69ad57a7372d4f44382a0e18baa3d18c131e327deabc231bf4b32fc8515dcbf2b24562f464b1d2dd1ca48d60108471498d36291db@13.212.185.13:55555",
 		DiscoTopic:       "testnet",
 	}
 )
