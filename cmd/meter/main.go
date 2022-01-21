@@ -299,7 +299,7 @@ func defaultAction(ctx *cli.Context) error {
 	sc := script.NewScriptEngine(chain, stateCreator)
 	cons := consensus.NewConsensusReactor(ctx, chain, stateCreator, master.PrivateKey, master.PublicKey, consensusMagic, blsCommon, initDelegates)
 
-	observeURL, observeSrvCloser := startObserveServer(ctx, cons, pubkey, p2pcom.comm, chain)
+	observeURL, observeSrvCloser := startObserveServer(ctx, cons, pubkey, p2pcom.comm, chain, ctx.String(apiCorsFlag.Name))
 	defer func() { log.Info("closing Observe Server ..."); observeSrvCloser() }()
 
 	//also create the POW components
