@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/rs/cors"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -469,7 +470,7 @@ func (d *Dispatcher) handlePeers(w http.ResponseWriter, r *http.Request) {
 	api_utils.WriteJSON(w, d.nw.PeersStats())
 }
 
-func startObserveServer(ctx *cli.Context, cons *consensus.ConsensusReactor, complexPubkey string, nw probe.Network, chain *chain.Chain) (string, func()) {
+func startObserveServer(ctx *cli.Context, cons *consensus.ConsensusReactor, complexPubkey string, nw probe.Network, chain *chain.Chain, allowedOrigins string) (string, func()) {
 	addr := ":8670"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -487,8 +488,17 @@ func startObserveServer(ctx *cli.Context, cons *consensus.ConsensusReactor, comp
 	mux.HandleFunc("/committee", cons.ReceiveCommitteeMsg)
 	mux.HandleFunc("/pacemaker", cons.ReceivePacemakerMsg)
 
+	origins := strings.Split(strings.TrimSpace(allowedOrigins), ",")
+	for i, o := range origins {
+		origins[i] = strings.ToLower(strings.TrimSpace(o))
+	}
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: origins,
+	})
+
 	srv := &http.Server{
-		Handler:      mux,
+		Handler:      c.Handler(mux),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,

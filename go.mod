@@ -24,6 +24,7 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v0.9.2
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
+	github.com/rs/cors v1.8.2
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v0.0.0-20181128100959-b001fa50d6b2
 	github.com/vechain/go-ecvrf v0.0.0-20200326080414-5b7e9ee61906
