@@ -1192,6 +1192,37 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			return
 		}
 
+		if sb.Option == BUCKET_SUB_OPT {
+			if bucket.IsForeverLock() {
+				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_REQUIRED_BY_DELEGATE) < 0 {
+					err = errors.New("limit MIN_REQUIRED_BY_DELEGATE")
+					return
+				}
+			} else {
+				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_BOUND_BALANCE) < 0 {
+					err = errors.New("limit MIN_BOUND_BALANCE")
+					return
+				}
+			}
+
+			bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+			if !bucket.Candidate.IsZero() {
+				if cand := candidateList.Get(bucket.Candidate); cand != nil {
+					cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
+				}
+			}
+
+			subBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), bucket.Option, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
+			subBucket.Unbounded = true
+			subBucket.MatureTime = sb.Timestamp + GetBoundLocktime(subBucket.Option) // lock time
+
+			bucketList.Add(subBucket)
+
+			staking.SetBucketList(bucketList, state)
+			staking.SetCandidateList(candidateList, state)
+			return
+		}
+
 		if state.GetBalance(sb.HolderAddr).Cmp(sb.Amount) < 0 {
 			err = errors.New("not enough meter-gov balance")
 			return
