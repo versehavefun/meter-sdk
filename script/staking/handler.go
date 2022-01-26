@@ -1193,6 +1193,11 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 		}
 
 		if sb.Option == BUCKET_SUB_OPT {
+			if sb.Amount.Cmp(MIN_SUB_BALANCE) < 0 {
+				err = errors.New("limit MIN_SUB_BALANCE")
+				return
+			}
+
 			if bucket.IsForeverLock() {
 				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_REQUIRED_BY_DELEGATE) < 0 {
 					err = errors.New("limit MIN_REQUIRED_BY_DELEGATE")
