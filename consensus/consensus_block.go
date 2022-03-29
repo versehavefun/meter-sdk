@@ -385,10 +385,9 @@ func (c *ConsensusReactor) validateBlockBody(blk *block.Block, forceValidate boo
 			panic("get state failed")
 		}
 
-		proposalKBlock, powResults := powpool.GetGlobPowPoolInst().GetPowDecision()
-		if proposalKBlock && forceValidate {
-			rewards := powResults.Rewards
-			// Build.
+		//proposalKBlock, powResults := powpool.GetGlobPowPoolInst().GetPowDecision()
+		if forceValidate {
+			rewards := make([]powpool.PowReward, 0)
 			rewardTxs = c.buildRewardTxs(parentBlock, rewards, chainTag, bestNum, curEpoch, best, state)
 
 			// Decode.
@@ -734,9 +733,9 @@ func (c *ConsensusReactor) verifyBlock(blk *block.Block, state *state.State) (*s
 	}
 
 	if blk.Header().BlockType() == block.BLOCK_TYPE_K_BLOCK {
-		if err := c.verifyKBlock(); err != nil {
-			return nil, nil, err
-		}
+		//if err := c.verifyKBlock(); err != nil {
+		//	return nil, nil, err
+		//}
 	}
 
 	for _, tx := range txs {
