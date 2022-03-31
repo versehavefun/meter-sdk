@@ -41,13 +41,13 @@ RUN mkdir /pos
 COPY _docker/sdk_allin/00-meter.conf /etc/rsyslog.d/
 COPY _docker/sdk_allin/rsyslog.conf /etc/rsyslog.conf
 COPY _docker/sdk_allin/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY _docker/sdk_allin/reset.sh /
-RUN chmod a+x /reset.sh
+#COPY _docker/sdk_allin/reset.sh /
+RUN #chmod a+x /reset.sh
 
 RUN touch /var/log/supervisor/pos-stdout.log
 RUN touch /var/log/supervisor/pos-stderr.log
 
-LABEL com.centurylinklabs.watchtower.lifecycle.pre-update="/reset.sh"
+#LABEL com.centurylinklabs.watchtower.lifecycle.pre-update="/reset.sh"
 
 EXPOSE 8668 8669 8670 11235 11235/udp 55555/udp
 ENTRYPOINT [ "/usr/bin/supervisord" ]
