@@ -293,7 +293,7 @@ func (t *Transaction) EthTxValidate() (bool, error) {
 		txID := t.MeterID()
 		reverseTxID := reverseTx.MeterID()
 		if bytes.Compare(txID[:], reverseTxID[:]) != 0 {
-			return false, errors.New("reverseTx err")
+			return false, errors.New(fmt.Sprintf("reverseTx err, txID %v", t.ID()))
 		}
 	}
 
