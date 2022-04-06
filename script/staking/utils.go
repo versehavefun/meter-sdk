@@ -34,6 +34,9 @@ func GetCandidateSelfBuckets(c *Candidate, bl *BucketList) ([]*Bucket, error) {
 	self := []*Bucket{}
 	for _, id := range c.Buckets {
 		b := bl.Get(id)
+		if b == nil {
+			continue
+		}
 		if b.Owner == c.Addr && b.Candidate == c.Addr {
 			self = append(self, b)
 		}
