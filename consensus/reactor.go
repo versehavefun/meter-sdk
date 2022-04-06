@@ -1234,7 +1234,7 @@ func (conR *ConsensusReactor) CheckEstablishedCommittee(kHeight uint32) bool {
 
 func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 	var nonce uint64
-	var info *powpool.PowBlockInfo
+	//var info *powpool.PowBlockInfo
 	kBlock, err := conR.chain.BestKBlock()
 	if err != nil {
 		fmt.Println("could not get best KBlock", err)
@@ -1250,10 +1250,10 @@ func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 	kBlockHeight := kBlock.Header().Number()
 	if kBlock.Header().Number() == 0 {
 		nonce = genesis.GenesisNonce
-		info = powpool.GetPowGenesisBlockInfo()
+		//info = powpool.GetPowGenesisBlockInfo()
 	} else {
 		nonce = kBlock.KBlockData.Nonce
-		info = powpool.NewPowBlockInfoFromPosKBlock(kBlock)
+		//info = powpool.NewPowBlockInfoFromPosKBlock(kBlock)
 	}
 	epoch := conR.chain.BestBlock().GetBlockEpoch()
 	conR.logger.Info("Init committee", "nonce", nonce, "kBlockHeight", kBlockHeight, "bestIsKBlock", bestIsKBlock, "epoch", epoch)
@@ -1271,16 +1271,16 @@ func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 
 	if inCommittee {
 		conR.logger.Info("I am in committee!!!")
-		pool := powpool.GetGlobPowPoolInst()
-		pool.Wash()
-		pool.InitialAddKframe(info)
-		conR.logger.Info("PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", info.PowHeight)
+		//pool := powpool.GetGlobPowPoolInst()
+		//pool.Wash()
+		//pool.InitialAddKframe(info)
+		conR.logger.Info("PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", 0)
 
 		if bestIsKBlock == false {
 			//kblock is already added to pool, should start with next one
-			startHeight := info.PowHeight + 1
-			conR.logger.Info("Replay", "replay from powHeight", startHeight)
-			pool.ReplayFrom(int32(startHeight))
+			//startHeight := info.PowHeight + 1
+			//conR.logger.Info("Replay", "replay from powHeight", startHeight)
+			//pool.ReplayFrom(int32(startHeight))
 		}
 		conR.inCommittee = true
 		inCommitteeGauge.Set(1)
