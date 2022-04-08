@@ -65,7 +65,7 @@ type Pacemaker struct {
 	startRound             uint32
 
 	// Utility data structures
-	newCommittee  bool //pacemaker in replay mode?
+	//newCommittee  bool //pacemaker in replay mode?
 	mode          PMMode
 	msgCache      *MsgCache
 	sigAggregator *SignatureAggregator
