@@ -1131,13 +1131,13 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 		benefitRatio := reward.GetValidatorBenefitRatio(state)
 		validatorBaseReward := reward.GetValidatorBaseRewards(state)
 		epochBaseReward := reward.ComputeEpochBaseReward(validatorBaseReward)
-		nDays := meter.NDays
-		nAuctionPerDay := meter.NEpochPerDay // wrong number before hardfork
-		nDays = meter.NDaysV2
-		nAuctionPerDay = meter.NAuctionPerDay
+		//nDays := meter.NDays
+		//nAuctionPerDay := meter.NEpochPerDay // wrong number before hardfork
+		nDays := meter.NDaysV2
+		nAuctionPerDay := meter.NAuctionPerDay
 		epochTotalReward, err := reward.ComputeEpochTotalReward(benefitRatio, nDays, nAuctionPerDay)
 		if err != nil {
-			epochTotalReward = big.NewInt(0)
+			epochTotalReward = new(big.Int).Mul(big.NewInt(1e18), big.NewInt(100))
 		}
 		var rewardMap reward.RewardMap
 		//if meter.IsMainChainTeslaFork2(parentBlock.Header().Number()) == true || meter.IsTestChainTeslaFork2(parentBlock.Header().Number()) == true {
