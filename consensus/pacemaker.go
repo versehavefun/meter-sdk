@@ -20,7 +20,7 @@ import (
 
 const (
 	RoundInterval        = 2 * time.Second
-	RoundTimeoutInterval = 30 * time.Second // move the timeout from 10 to 30 secs.
+	RoundTimeoutInterval = 10 * time.Second // move the timeout from 10 to 30 secs.
 
 	MIN_MBLOCKS_AN_EPOCH = uint32(4)
 
