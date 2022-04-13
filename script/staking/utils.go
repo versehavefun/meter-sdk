@@ -57,15 +57,42 @@ func CheckCandEnoughSelfVotes(newVotes *big.Int, c *Candidate, bl *BucketList, s
 		return false
 	}
 
-	self := big.NewInt(0)
+	selfTotal := big.NewInt(0)
 	for _, b := range bkts {
-		self = self.Add(self, b.TotalVotes)
+		selfTotal = selfTotal.Add(selfTotal, b.TotalVotes)
 	}
 	//should: candidate total votes/ self votes <= selfVoteRatio
 	// c.TotalVotes is candidate total votes
-	total := new(big.Int).Add(c.TotalVotes, newVotes)
-	total = total.Div(total, big.NewInt(selfVoteRatio))
-	if total.Cmp(self) > 0 {
+	_allTotal := new(big.Int).Add(c.TotalVotes, newVotes)
+	limitMinTotal := _allTotal.Div(_allTotal, big.NewInt(selfVoteRatio))
+	if limitMinTotal.Cmp(selfTotal) > 0 {
+		return false
+	}
+
+	return true
+}
+
+func CheckEnoughSelfVotes(subVotes *big.Int, c *Candidate, bl *BucketList, selfVoteRatio int64) bool {
+	// The previous check is candidata self shoud occupies 1/10 of the total votes.
+	// Remove this check now
+	bkts, err := GetCandidateSelfBuckets(c, bl)
+	if err != nil {
+		log.Error("Get candidate self bucket failed", "candidate", c.Addr.String(), "error", err)
+		return false
+	}
+
+	_selfTotal := big.NewInt(0)
+	for _, b := range bkts {
+		_selfTotal = _selfTotal.Add(_selfTotal, b.TotalVotes)
+	}
+	selfTotal := new(big.Int).Sub(_selfTotal, subVotes)
+
+	//should: candidate total votes/ self votes <= selfVoteRatio
+	// c.TotalVotes is candidate total votes
+	_allTotal := new(big.Int).Sub(c.TotalVotes, subVotes)
+	limitMinTotal := _allTotal.Div(_allTotal, big.NewInt(selfVoteRatio))
+
+	if limitMinTotal.Cmp(selfTotal) > 0 {
 		return false
 	}
 

@@ -1207,6 +1207,18 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 					err = errors.New("limit MIN_REQUIRED_BY_DELEGATE")
 					return
 				}
+
+				// if the candidate already exists return error without paying gas
+				cand := candidateList.Get(sb.CandAddr)
+				if cand == nil {
+					err = errCandidateNotListed
+					return
+				}
+
+				selfRatioValid := CheckEnoughSelfVotes(sb.Amount, cand, bucketList, TESLA1_1_SELF_VOTE_RATIO)
+				if !selfRatioValid {
+					return leftOverGas, errCandidateNotEnoughSelfVotes
+				}
 			} else {
 				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_BOUND_BALANCE) < 0 {
 					err = errors.New("limit MIN_BOUND_BALANCE")
