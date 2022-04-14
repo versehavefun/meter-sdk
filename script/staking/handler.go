@@ -156,7 +156,7 @@ func (sb *StakingBody) BoundHandler(env *StakingEnv, gas uint64) (leftOverGas ui
 		} else {
 			selfRatioValid := false
 			//if meter.IsTestNet() || meter.IsMainNet() && env.GetTxCtx().BlockRef.Number() > meter.Tesla1_1MainnetStartNum {
-				selfRatioValid = CheckCandEnoughSelfVotes(sb.Amount, c, bucketList, TESLA1_1_SELF_VOTE_RATIO)
+			selfRatioValid = CheckCandEnoughSelfVotes(sb.Amount, c, bucketList, TESLA1_1_SELF_VOTE_RATIO)
 			//} else {
 			//	selfRatioValid = CheckCandEnoughSelfVotes(sb.Amount, c, bucketList, TESLA1_0_SELF_VOTE_RATIO)
 			//}
@@ -532,7 +532,7 @@ func (sb *StakingBody) DelegateHandler(env *StakingEnv, gas uint64) (leftOverGas
 
 	selfRatioValid := false
 	//if meter.IsTestNet() || (meter.IsMainNet() && env.GetTxCtx().BlockRef.Number() > meter.Tesla1_1MainnetStartNum) {
-		selfRatioValid = CheckCandEnoughSelfVotes(b.TotalVotes, cand, bucketList, TESLA1_1_SELF_VOTE_RATIO)
+	selfRatioValid = CheckCandEnoughSelfVotes(b.TotalVotes, cand, bucketList, TESLA1_1_SELF_VOTE_RATIO)
 	//} else {
 	//	selfRatioValid = CheckCandEnoughSelfVotes(b.TotalVotes, cand, bucketList, TESLA1_0_SELF_VOTE_RATIO)
 	//}
@@ -1182,78 +1182,76 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 
 	//if meter.IsTestNet() || (meter.IsMainNet() && number > meter.Tesla1_1MainnetStartNum) {
 
-		/****
-		if bucket.IsForeverLock() == true {
-			log.Error(fmt.Sprintf("can not update the bucket, ID %v", sb.StakingID))
-			err = errUpdateForeverBucket
-		}
-		***/
+	/****
+	if bucket.IsForeverLock() == true {
+		log.Error(fmt.Sprintf("can not update the bucket, ID %v", sb.StakingID))
+		err = errUpdateForeverBucket
+	}
+	***/
 
-		// can not update unbouded bucket
-		if bucket.Unbounded == true {
-			log.Error(fmt.Sprintf("can not update unbounded bucket, ID %v", sb.StakingID))
-			err = errors.New("can not update unbounded bucket")
+	// can not update unbouded bucket
+	if bucket.Unbounded == true {
+		log.Error(fmt.Sprintf("can not update unbounded bucket, ID %v", sb.StakingID))
+		err = errors.New("can not update unbounded bucket")
+		return
+	}
+
+	if sb.Option == BUCKET_SUB_OPT {
+		if sb.Amount.Cmp(MIN_SUB_BALANCE) < 0 {
+			err = errors.New("limit MIN_SUB_BALANCE")
 			return
 		}
 
-		if sb.Option == BUCKET_SUB_OPT {
-			if sb.Amount.Cmp(MIN_SUB_BALANCE) < 0 {
-				err = errors.New("limit MIN_SUB_BALANCE")
+		if bucket.IsForeverLock() {
+			if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_REQUIRED_BY_DELEGATE) < 0 {
+				err = errors.New("limit MIN_REQUIRED_BY_DELEGATE")
 				return
 			}
 
-			if bucket.IsForeverLock() {
-				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_REQUIRED_BY_DELEGATE) < 0 {
-					err = errors.New("limit MIN_REQUIRED_BY_DELEGATE")
-					return
-				}
-
-				// if the candidate already exists return error without paying gas
-				cand := candidateList.Get(sb.CandAddr)
-				if cand == nil {
-					err = errCandidateNotListed
-					return
-				}
-
-				selfRatioValid := CheckEnoughSelfVotes(sb.Amount, cand, bucketList, TESLA1_1_SELF_VOTE_RATIO)
-				if !selfRatioValid {
-					return leftOverGas, errCandidateNotEnoughSelfVotes
-				}
-			} else {
-				if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_BOUND_BALANCE) < 0 {
-					err = errors.New("limit MIN_BOUND_BALANCE")
-					return
-				}
+			// if the candidate already exists return error without paying gas
+			cand := candidateList.Get(sb.CandAddr)
+			if cand == nil {
+				err = errCandidateNotListed
+				return
 			}
 
-			bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
-			if !bucket.Candidate.IsZero() {
-				if cand := candidateList.Get(bucket.Candidate); cand != nil {
-					cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
-				}
+			selfRatioValid := CheckEnoughSelfVotes(sb.Amount, cand, bucketList, TESLA1_1_SELF_VOTE_RATIO)
+			if !selfRatioValid {
+				return leftOverGas, errCandidateNotEnoughSelfVotes
 			}
-
-			subBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), bucket.Option, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
-			subBucket.Unbounded = true
-			subBucket.MatureTime = sb.Timestamp + GetBoundLocktime(subBucket.Option) // lock time
-
-			bucketList.Add(subBucket)
-
-			staking.SetBucketList(bucketList, state)
-			staking.SetCandidateList(candidateList, state)
-			return
+		} else {
+			if bucket.Value.Sub(bucket.Value, sb.Amount).Cmp(MIN_BOUND_BALANCE) < 0 {
+				err = errors.New("limit MIN_BOUND_BALANCE")
+				return
+			}
 		}
 
-		if state.GetBalance(sb.HolderAddr).Cmp(sb.Amount) < 0 {
-			err = errors.New("not enough meter-gov balance")
-			return
+		bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+		if !bucket.Candidate.IsZero() {
+			if cand := candidateList.Get(bucket.Candidate); cand != nil {
+				cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
+			}
 		}
 
-		// bound account balance
-		err = staking.BoundAccountMeterGov(sb.HolderAddr, sb.Amount, state, env)
-		if err != nil {
-			return
-		}
+		subBucket := NewBucket(bucket.Owner, meter.Address{}, sb.Amount, uint8(bucket.Token), 0, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
+
+		bucketList.Add(subBucket)
+
+		staking.SetBucketList(bucketList, state)
+		staking.SetCandidateList(candidateList, state)
+		return
+	}
+
+	if state.GetBalance(sb.HolderAddr).Cmp(sb.Amount) < 0 {
+		err = errors.New("not enough meter-gov balance")
+		return
+	}
+
+	// bound account balance
+	err = staking.BoundAccountMeterGov(sb.HolderAddr, sb.Amount, state, env)
+	if err != nil {
+		return
+	}
 	//} else {
 	//
 	//	if bucket.IsForeverLock() == true {
