@@ -57,7 +57,7 @@ const (
 	MaxTxWorkDelay uint32 = 30 // (unit: block) if tx delay exceeds this value, no energy can be exchanged.
 
 	MaxBlockProposers uint64 = 101
-	KBlockInterval    uint32 = 500
+	KBlockInterval    uint32 = 1000
 
 	TolerableBlockPackingTime = 100 * time.Millisecond // the indicator to adjust target block gas limit
 
