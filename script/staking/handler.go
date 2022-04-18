@@ -1234,10 +1234,10 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			}
 		}
 
-		if bucket.Candidate != sb.CandAddr {
-			err = errBucketOwnerMismatch
-			return
-		}
+		//if bucket.Candidate != sb.CandAddr {
+		//	err = errBucketOwnerMismatch
+		//	return
+		//}
 
 		newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
 
