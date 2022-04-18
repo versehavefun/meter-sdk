@@ -263,9 +263,9 @@ func (sb *StakingBody) UnBoundHandler(env *StakingEnv, gas uint64) (leftOverGas 
 	if b == nil {
 		return leftOverGas, errBucketNotFound
 	}
-	if b.Owner != sb.HolderAddr {
-		return leftOverGas, errBucketOwnerMismatch
-	}
+	//if b.Owner != sb.HolderAddr {
+	//	return leftOverGas, errBucketOwnerMismatch
+	//}
 	if b.Value.Cmp(sb.Amount) != 0 {
 		return leftOverGas, errBucketAmountMismatch
 	}
@@ -508,9 +508,9 @@ func (sb *StakingBody) DelegateHandler(env *StakingEnv, gas uint64) (leftOverGas
 	if b == nil {
 		return leftOverGas, errBucketNotFound
 	}
-	if b.Owner != sb.HolderAddr {
-		return leftOverGas, errBucketOwnerMismatch
-	}
+	//if b.Owner != sb.HolderAddr {
+	//	return leftOverGas, errBucketOwnerMismatch
+	//}
 	if b.Value.Cmp(sb.Amount) != 0 {
 		return leftOverGas, errBucketAmountMismatch
 	}
@@ -576,9 +576,9 @@ func (sb *StakingBody) UnDelegateHandler(env *StakingEnv, gas uint64) (leftOverG
 	if b == nil {
 		return leftOverGas, errBucketNotFound
 	}
-	if b.Owner != sb.HolderAddr {
-		return leftOverGas, errBucketOwnerMismatch
-	}
+	//if b.Owner != sb.HolderAddr {
+	//	return leftOverGas, errBucketOwnerMismatch
+	//}
 	if b.Value.Cmp(sb.Amount) != 0 {
 		return leftOverGas, errBucketAmountMismatch
 	}
@@ -1173,10 +1173,10 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 		return
 	}
 
-	if bucket.Owner != sb.HolderAddr {
-		err = errBucketOwnerMismatch
-		return
-	}
+	//if bucket.Owner != sb.HolderAddr {
+	//	err = errBucketOwnerMismatch
+	//	return
+	//}
 
 	// Now allow to change forever lock amount
 	//number := env.GetTxCtx().BlockRef.Number()
