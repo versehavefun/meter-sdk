@@ -1157,6 +1157,7 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 	state := env.GetState()
 	candidateList := staking.GetCandidateList(state)
 	bucketList := staking.GetBucketList(state)
+	stakeholderList := staking.GetStakeHolderList(state)
 
 	if gas < meter.ClauseGas {
 		leftOverGas = 0
@@ -1233,12 +1234,33 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			}
 		}
 
-		subBucket := NewBucket(bucket.Owner, meter.Address{}, sb.Amount, uint8(bucket.Token), 0, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
+		if bucket.Candidate != sb.CandAddr {
+			err = errBucketOwnerMismatch
+			return
+		}
 
-		bucketList.Add(subBucket)
+		newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
+
+		bucketList.Add(newBucket)
+
+		// sanity check done, take actions
+		newBucket.Unbounded = true
+		newBucket.MatureTime = sb.Timestamp + GetBoundLocktime(newBucket.Option) // lock time
+
+		stakeholder := stakeholderList.Get(sb.HolderAddr)
+		//if stakeholder == nil {
+		//	stakeholder = NewStakeholder(sb.HolderAddr)
+		//	stakeholder.AddBucket(bucket)
+
+		//} else {
+			stakeholder.AddBucket(newBucket)
+			stakeholderList.Add(stakeholder)
+		//}
 
 		staking.SetBucketList(bucketList, state)
 		staking.SetCandidateList(candidateList, state)
+		staking.SetStakeHolderList(stakeholderList, state)
+
 		return
 	}
 
@@ -1282,6 +1304,8 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 
 	staking.SetBucketList(bucketList, state)
 	staking.SetCandidateList(candidateList, state)
+	staking.SetStakeHolderList(stakeholderList, state)
+
 	return
 }
 
