@@ -404,10 +404,10 @@ func (s *Staking) UnboundAccountMeterGov(addr meter.Address, amount *big.Int, st
 	// meterGovBounded should >= amount
 	if meterGovBounded.Cmp(amount) < 0 {
 		log.Error("not enough bounded meter-gov balance", "account", addr, "Bounded", meterGovBounded, "unbound amount", amount, "number", number)
-		if number + 1 < 3418000 {
-			return errors.New("not enough bounded meter-gov balance")
-		} else {
+		if number + 1 == 3418000 {
 			meterGovBounded = amount
+		} else {
+			return errors.New("not enough bounded meter-gov balance")
 		}
 	}
 
