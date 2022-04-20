@@ -399,10 +399,16 @@ func (s *Staking) UnboundAccountMeterGov(addr meter.Address, amount *big.Int, st
 	meterGov := state.GetBalance(addr)
 	meterGovBounded := state.GetBoundedBalance(addr)
 
+	number := s.Chain().BestBlock().BlockHeader.Number()
+
 	// meterGovBounded should >= amount
 	if meterGovBounded.Cmp(amount) < 0 {
-		log.Error("not enough bounded meter-gov balance", "account", addr, "unbound amount", amount)
-		return errors.New("not enough bounded meter-gov balance")
+		log.Error("not enough bounded meter-gov balance", "account", addr, "Bounded", meterGovBounded, "unbound amount", amount)
+		if number < 3418000{
+			return errors.New("not enough bounded meter-gov balance")
+		} else {
+			meterGovBounded = amount
+		}
 	}
 
 	state.SetBalance(addr, new(big.Int).Add(meterGov, amount))
@@ -429,7 +435,7 @@ func (s *Staking) CollectBailMeterGov(addr meter.Address, amount *big.Int, state
 
 	meterGov := state.GetBalance(addr)
 	if meterGov.Cmp(amount) < 0 {
-		log.Error("not enough bounded meter-gov balance", "account", addr)
+		log.Error("not enough bounded meter-gov balance", "account", addr, "meterGov", meterGov, "amount", amount)
 		return errors.New("not enough meter-gov balance")
 	}
 
