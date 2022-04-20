@@ -1236,7 +1236,7 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			}
 		}
 
-		if bucket.Candidate != sb.CandAddr {
+		if number >= 3418000 && bucket.Candidate != sb.CandAddr {
 			err = errBucketOwnerMismatch
 			return
 		}
