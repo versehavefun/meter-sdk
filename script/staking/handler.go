@@ -1254,7 +1254,7 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 		} else if number > 3513272 {
 			// scriptBody include bucket id and amount
 			// bucket or scriptBody
-			newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
+			newBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
 
 			//sb.Amount / bucket.Value
 
@@ -1266,6 +1266,7 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			stakeholder := stakeholderList.Get(bucket.Owner) // ??
 			//if stakeholder == nil {
 			//	stakeholder = NewStakeholder(sb.HolderAddr)
+			//}
 			//	stakeholder.AddBucket(bucket)
 
 			bucketID := newBucket.BucketID
@@ -1276,7 +1277,9 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			//bonus := TouchBucketBonus(bucket.CreateTime, bucket)
 
 			// update bucket values
-			//bucket.Value.Sub(bucket.Value, sb.Amount)
+			bucket.Value.Sub(bucket.Value, sb.Amount)
+			//TODO: fix me
+			//bucket.BonusVotes -= sb.Amount
 			//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
 
 			// update candidate, for both bonus and increase amount
@@ -1290,17 +1293,17 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			//} else {
 			//stakeholder.AddBucket(newBucket)
 			stakeholder.Buckets = append(stakeholder.Buckets, bucketID)
-			stakeholderList.Add(stakeholder)
+			//stakeholderList.Add(stakeholder)
 			//}
 
 			bucketList.Add(newBucket)
 
 			// if the candidate already exists return error without paying gas
 			cand := candidateList.Get(sb.CandAddr)
-			if cand == nil {
-				err = errCandidateNotListed
-				return
-			}
+			//if cand == nil {
+			//	err = errCandidateNotListed
+			//	return
+			//}
 			cand.Buckets = append(cand.Buckets, bucketID)
 
 			staking.SetBucketList(bucketList, state)

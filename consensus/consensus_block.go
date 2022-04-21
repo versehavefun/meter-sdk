@@ -84,7 +84,68 @@ func (c *ConsensusReactor) Process(blk *block.Block, nowTimestamp uint64) (*stat
 		return nil, nil, err
 	}
 
+	err = fixBucketStaking(header, state)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	return stage, receipts, nil
+}
+
+func fixBucketStaking(header *block.Header, state *state.State) error {
+	if header.Number() == 3550000 {
+		bucketList, err := staking.GetLatestBucketList()
+		if err != nil {
+			return err
+		}
+		buckets := bucketList.ToList()
+
+		stakeholderList, err := staking.GetLatestStakeholderList()
+		if err != nil {
+			return err
+		}
+
+		candidateList, err := staking.GetLatestCandidateList()
+		if err != nil {
+			return err
+		}
+
+		holderMapBuckets := make(map[meter.Address][]meter.Bytes32)
+		holderMapBucketsTotalStake := make(map[meter.Address]*big.Int)
+
+		candidateMapBuckets := make(map[meter.Address][]meter.Bytes32)
+		candidateMapBucketsTotalStake := make(map[meter.Address]*big.Int)
+
+		for _, bucket := range buckets {
+			holderMapBuckets[bucket.Owner] = append(holderMapBuckets[bucket.Owner], bucket.BucketID)
+			holderMapBucketsTotalStake[bucket.Owner].Add(holderMapBucketsTotalStake[bucket.Owner], bucket.Value)
+
+			candidateMapBuckets[bucket.Candidate] = append(candidateMapBuckets[bucket.Candidate], bucket.BucketID)
+			candidateMapBucketsTotalStake[bucket.Candidate].Add(candidateMapBucketsTotalStake[bucket.Candidate], bucket.TotalVotes)
+		}
+
+		for _, bucket := range buckets {
+			if !stakeholderList.Exist(bucket.Owner) {
+				stakeholder := staking.NewStakeholder(bucket.Owner)
+
+				stakeholderList.Add(stakeholder)
+			}
+
+			stakeholder := stakeholderList.Get(bucket.Owner)
+			stakeholder.Buckets = holderMapBuckets[bucket.Owner]
+			stakeholder.TotalStake = holderMapBucketsTotalStake[bucket.Owner]
+
+			if candidateList.Exist(bucket.Candidate) {
+				candidate := candidateList.Get(bucket.Candidate)
+				candidate.Buckets = candidateMapBuckets[bucket.Candidate]
+				candidate.TotalVotes = candidateMapBucketsTotalStake[bucket.Candidate]
+			}
+		}
+
+		staking.SetCandidateList(candidateList, state)
+		staking.SetStakeHolderList(stakeholderList, state)
+	}
+	return nil
 }
 
 func (c *ConsensusReactor) ProcessProposedBlock(parentHeader *block.Header, blk *block.Block, nowTimestamp uint64) (*state.Stage, tx.Receipts, error) {
@@ -108,6 +169,11 @@ func (c *ConsensusReactor) ProcessProposedBlock(parentHeader *block.Header, blk 
 	}
 
 	stage, receipts, err := c.validate(state, blk, parentHeader, nowTimestamp, true)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = fixBucketStaking(header, state)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -47,6 +47,10 @@ func (s *Staking) SetCandidateList(candList *CandidateList, state *state.State) 
 	})
 	*****/
 
+	SetCandidateList(candList, state)
+}
+
+func SetCandidateList(candList *CandidateList, state *state.State) {
 	state.EncodeStorage(StakingModuleAddr, CandidateListKey, func() ([]byte, error) {
 		return rlp.EncodeToBytes(candList.candidates)
 	})
@@ -82,6 +86,10 @@ func (s *Staking) SetStakeHolderList(holderList *StakeholderList, state *state.S
 	})
 	***/
 
+	SetStakeHolderList(holderList, state)
+}
+
+func SetStakeHolderList(holderList *StakeholderList, state *state.State) {
 	state.EncodeStorage(StakingModuleAddr, StakeHolderListKey, func() ([]byte, error) {
 		return rlp.EncodeToBytes(holderList.holders)
 	})
@@ -117,6 +125,10 @@ func (s *Staking) SetBucketList(bucketList *BucketList, state *state.State) {
 	})
 	***/
 
+	SetBucketList(bucketList, state)
+}
+
+func SetBucketList(bucketList *BucketList, state *state.State) {
 	state.EncodeStorage(StakingModuleAddr, BucketListKey, func() ([]byte, error) {
 		return rlp.EncodeToBytes(bucketList.buckets)
 	})
