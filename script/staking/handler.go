@@ -1276,11 +1276,20 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			// Now so far so good, calc interest first
 			//bonus := TouchBucketBonus(bucket.CreateTime, bucket)
 
+			_oldBonusVotes := new(big.Int).SetUint64(bucket.BonusVotes)
+
 			// update bucket values
+			changeBonusVotes := big.NewInt(0)
+			changeBonusVotes.Mul(_oldBonusVotes, sb.Amount)
+			changeBonusVotes.Div(changeBonusVotes, bucket.Value)
+
 			bucket.Value.Sub(bucket.Value, sb.Amount)
-			//TODO: fix me
-			//bucket.BonusVotes -= sb.Amount
-			//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+			bucket.BonusVotes -= changeBonusVotes.Uint64()
+			bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+			bucket.TotalVotes.Sub(bucket.TotalVotes, changeBonusVotes)
+
+			newBucket.BonusVotes += changeBonusVotes.Uint64()
+			newBucket.TotalVotes.Add(newBucket.Value, changeBonusVotes)
 
 			// update candidate, for both bonus and increase amount
 			//if bucket.Candidate.IsZero() == false {
