@@ -1251,6 +1251,63 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			staking.SetBucketList(bucketList, state)
 			staking.SetCandidateList(candidateList, state)
 			return
+		} else if number > 3513272 {
+			// scriptBody include bucket id and amount
+			// bucket or scriptBody
+			newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
+
+			//sb.Amount / bucket.Value
+
+			// sanity check done, take actions
+			newBucket.Unbounded = true
+			newBucket.MatureTime = sb.Timestamp + GetBoundLocktime(newBucket.Option) // lock time
+
+			//stakeholder := stakeholderList.Get(sb.HolderAddr) // ?? bucket.Owner
+			stakeholder := stakeholderList.Get(bucket.Owner) // ??
+			//if stakeholder == nil {
+			//	stakeholder = NewStakeholder(sb.HolderAddr)
+			//	stakeholder.AddBucket(bucket)
+
+			bucketID := newBucket.BucketID
+
+			//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+
+			// Now so far so good, calc interest first
+			//bonus := TouchBucketBonus(bucket.CreateTime, bucket)
+
+			// update bucket values
+			//bucket.Value.Sub(bucket.Value, sb.Amount)
+			//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+
+			// update candidate, for both bonus and increase amount
+			//if bucket.Candidate.IsZero() == false {
+			//	if cand := candidateList.Get(bucket.Candidate); cand != nil {
+			//		cand.TotalVotes.Sub(cand.TotalVotes, bonus)
+			//		cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
+			//	}
+			//}
+
+			//} else {
+			//stakeholder.AddBucket(newBucket)
+			stakeholder.Buckets = append(stakeholder.Buckets, bucketID)
+			stakeholderList.Add(stakeholder)
+			//}
+
+			bucketList.Add(newBucket)
+
+			// if the candidate already exists return error without paying gas
+			cand := candidateList.Get(sb.CandAddr)
+			if cand == nil {
+				err = errCandidateNotListed
+				return
+			}
+			cand.Buckets = append(cand.Buckets, bucketID)
+
+			staking.SetBucketList(bucketList, state)
+			staking.SetCandidateList(candidateList, state)
+			staking.SetStakeHolderList(stakeholderList, state)
+
+			return
 		} else {
 			newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
 
