@@ -93,7 +93,7 @@ func (c *ConsensusReactor) Process(blk *block.Block, nowTimestamp uint64) (*stat
 }
 
 func fixBucketStaking(header *block.Header, state *state.State) error {
-	if header.Number() == 3550000 {
+	if header.Number() == 3552000 {
 		bucketList, err := staking.GetLatestBucketList()
 		if err != nil {
 			return err
@@ -117,10 +117,18 @@ func fixBucketStaking(header *block.Header, state *state.State) error {
 		candidateMapBucketsTotalStake := make(map[meter.Address]*big.Int)
 
 		for _, bucket := range buckets {
-			holderMapBuckets[bucket.Owner] = append(holderMapBuckets[bucket.Owner], bucket.BucketID)
+			bucketID := bucket.BucketID
+
+			holderMapBuckets[bucket.Owner] = append(holderMapBuckets[bucket.Owner], bucketID)
+			if _, ok := holderMapBucketsTotalStake[bucket.Owner]; !ok {
+				holderMapBucketsTotalStake[bucket.Owner] = big.NewInt(0)
+			}
 			holderMapBucketsTotalStake[bucket.Owner].Add(holderMapBucketsTotalStake[bucket.Owner], bucket.Value)
 
-			candidateMapBuckets[bucket.Candidate] = append(candidateMapBuckets[bucket.Candidate], bucket.BucketID)
+			candidateMapBuckets[bucket.Candidate] = append(candidateMapBuckets[bucket.Candidate], bucketID)
+			if _, ok := candidateMapBucketsTotalStake[bucket.Candidate]; !ok {
+				candidateMapBucketsTotalStake[bucket.Candidate] = big.NewInt(0)
+			}
 			candidateMapBucketsTotalStake[bucket.Candidate].Add(candidateMapBucketsTotalStake[bucket.Candidate], bucket.TotalVotes)
 		}
 
