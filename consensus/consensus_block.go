@@ -93,7 +93,7 @@ func (c *ConsensusReactor) Process(blk *block.Block, nowTimestamp uint64) (*stat
 }
 
 func fixBucketStaking(header *block.Header, state *state.State) error {
-	if header.Number() == 3552000 {
+	if header.Number() == 3663000 {
 		bucketList, err := staking.GetLatestBucketList()
 		if err != nil {
 			return err

@@ -1251,7 +1251,7 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			staking.SetBucketList(bucketList, state)
 			staking.SetCandidateList(candidateList, state)
 			return
-		} else if number >= 3552000 {
+		} else if number >= 3663000 {
 			// scriptBody include bucket id and amount
 			// bucket or scriptBody
 			newBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
