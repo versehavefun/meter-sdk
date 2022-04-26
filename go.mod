@@ -11,7 +11,15 @@ require (
 	github.com/enzoh/go-bls v0.0.0-20180308225442-56f8c69eaff5
 	github.com/ethereum/go-ethereum v1.8.14
 	github.com/fortytw2/leaktest v1.3.0
+	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/golang/snappy v0.0.1 // indirect
+	github.com/gonum/floats v0.0.0-20181209220543-c233463c7e82 // indirect
+	github.com/gonum/internal v0.0.0-20181124074243-f884aa714029 // indirect
 	github.com/gonum/stat v0.0.0-20181125101827-41a0da705a5b
+	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/google/uuid v1.1.0 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/handlers v1.4.0
 	github.com/gorilla/mux v1.6.2
 	github.com/gorilla/websocket v1.4.0
@@ -27,6 +35,7 @@ require (
 	github.com/rs/cors v1.8.2
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v0.0.0-20181128100959-b001fa50d6b2
+	github.com/tendermint/go-amino v0.16.0 // indirect
 	github.com/vechain/go-ecvrf v0.0.0-20200326080414-5b7e9ee61906
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/sys v0.0.0-20200814200057-3d37ad5750ed
@@ -45,14 +54,6 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/deckarep/golang-set v0.0.0-20180603214616-504e848d77ea // indirect
-	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/golang/protobuf v1.4.2 // indirect
-	github.com/golang/snappy v0.0.1 // indirect
-	github.com/gonum/floats v0.0.0-20181209220543-c233463c7e82 // indirect
-	github.com/gonum/internal v0.0.0-20181124074243-f884aa714029 // indirect
-	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/uuid v1.1.0 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/huin/goupnp v0.0.0-20161224104101-679507af18f3 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
@@ -62,7 +63,6 @@ require (
 	github.com/prometheus/common v0.3.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190412120340-e22ddced7142 // indirect
 	github.com/rjeczalik/notify v0.9.1 // indirect
-	github.com/tendermint/go-amino v0.16.0 // indirect
 	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc // indirect
 	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/protobuf v1.23.0 // indirect
