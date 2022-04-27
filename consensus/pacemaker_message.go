@@ -95,7 +95,7 @@ func (p *Pacemaker) packCommitteeInfo(blk *block.Block) {
 
 	// blk.SetBlockEvidence(ev)
 	committeeInfo = p.csReactor.MakeBlockCommitteeInfo(p.csReactor.csCommon.GetSystem(), p.csReactor.curActualCommittee)
-	// fmt.Println("committee info: ", committeeInfo)
+	fmt.Println("committee info: ", committeeInfo)
 	blk.SetCommitteeInfo(committeeInfo)
 	blk.SetCommitteeEpoch(p.csReactor.curEpoch)
 

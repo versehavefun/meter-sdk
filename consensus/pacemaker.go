@@ -1227,11 +1227,12 @@ func (p *Pacemaker) OnReceiveQueryProposal(mi *consensusMsgInfo) error {
 	returnAddr := queryMsg.ReturnAddr
 	p.logger.Info("receives query", "fromHeight", fromHeight, "toHeight", toHeight, "round", queryRound, "returnAddr", returnAddr)
 
-	bestHeight := p.csReactor.chain.BestBlock().Header().Number()
-	lastKBlockHeight := p.csReactor.chain.BestBlock().Header().LastKBlockHeight() + 1
+	bestBlockHeader := p.csReactor.chain.BestBlock().Header()
+	bestHeight := bestBlockHeader.Number()
+	lastKBlockHeight := bestBlockHeader.LastKBlockHeight() + 1
 	if toHeight <= bestHeight && toHeight > 0 {
 		// toHeight == 0 is considered as infinity
-		p.logger.Error("query too old", "fromHeight", fromHeight, "toHeight", toHeight, "round", queryRound)
+		p.logger.Error("query too old", "fromHeight", fromHeight, "toHeight", toHeight, "round", queryRound, "bestHeight", bestHeight)
 		return errors.New("query too old")
 	}
 	if fromHeight < lastKBlockHeight {
