@@ -62,6 +62,8 @@ const (
 	TolerableBlockPackingTime = 100 * time.Millisecond // the indicator to adjust target block gas limit
 
 	MaxBackTrackingBlockNumber = 65535
+
+	FixSubVote = 3733000
 )
 
 // powpool coef
