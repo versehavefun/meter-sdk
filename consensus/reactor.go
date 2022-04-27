@@ -1274,7 +1274,7 @@ func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 		//pool := powpool.GetGlobPowPoolInst()
 		//pool.Wash()
 		//pool.InitialAddKframe(info)
-		conR.logger.Info("PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", 0)
+		//conR.logger.Info("PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", 0)
 
 		if bestIsKBlock == false {
 			//kblock is already added to pool, should start with next one
