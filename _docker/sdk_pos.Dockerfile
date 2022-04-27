@@ -1,5 +1,6 @@
 # Build meter in a stock Go builder container
-FROM dfinlab/build-env as builder
+FROM meterio/build-env as builder
+RUN go version
 
 WORKDIR  /meter
 
