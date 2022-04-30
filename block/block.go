@@ -164,6 +164,88 @@ func (b *Block) Header() *Header {
 	return b.BlockHeader
 }
 
+func (b *Block) ID() meter.Bytes32 {
+	return b.BlockHeader.ID()
+}
+
+// ParentID returns id of parent block.
+func (b *Block) ParentID() meter.Bytes32 {
+	return b.BlockHeader.ParentID()
+}
+
+// LastBlocID returns id of parent block.
+func (b *Block) LastKBlockHeight() uint32 {
+	return b.BlockHeader.LastKBlockHeight()
+}
+
+// Number returns sequential number of this block.
+func (b *Block) Number() uint32 {
+	// inferred from parent id
+	return b.BlockHeader.Number()
+}
+
+// Timestamp returns timestamp of this block.
+func (b *Block) Timestamp() uint64 {
+	return b.BlockHeader.Timestamp()
+}
+
+// BlockType returns block type of this block.
+func (b *Block) BlockType() uint32 {
+	return b.BlockHeader.BlockType()
+}
+
+func (b *Block) IsKBlock() bool {
+	return b.BlockHeader.BlockType() == BLOCK_TYPE_K_BLOCK
+}
+
+func (b *Block) IsSBlock() bool {
+	return b.BlockHeader.BlockType() == BLOCK_TYPE_S_BLOCK
+}
+
+// TotalScore returns total score that cumulated from genesis block to this one.
+func (b *Block) TotalScore() uint64 {
+	return b.BlockHeader.TotalScore()
+}
+
+// GasLimit returns gas limit of this block.
+func (b *Block) GasLimit() uint64 {
+	return b.BlockHeader.GasLimit()
+}
+
+// GasUsed returns gas used by txs.
+func (b *Block) GasUsed() uint64 {
+	return b.BlockHeader.GasUsed()
+}
+
+// Beneficiary returns reward recipient.
+func (b *Block) Beneficiary() meter.Address {
+	return b.BlockHeader.Beneficiary()
+}
+
+// TxsRoot returns merkle root of txs contained in this block.
+func (b *Block) TxsRoot() meter.Bytes32 {
+	return b.BlockHeader.TxsRoot()
+}
+
+// StateRoot returns account state merkle root just afert this block being applied.
+func (b *Block) StateRoot() meter.Bytes32 {
+	return b.BlockHeader.StateRoot()
+}
+
+// ReceiptsRoot returns merkle root of tx receipts.
+func (b *Block) ReceiptsRoot() meter.Bytes32 {
+	return b.BlockHeader.ReceiptsRoot()
+}
+
+// EvidenceDataRoot returns merkle root of tx receipts.
+func (b *Block) EvidenceDataRoot() meter.Bytes32 {
+	return b.BlockHeader.EvidenceDataRoot()
+}
+
+func (b *Block) Signer() (signer meter.Address, err error) {
+	return b.BlockHeader.Signer()
+}
+
 // Transactions returns a copy of transactions.
 func (b *Block) Transactions() tx.Transactions {
 	return append(tx.Transactions(nil), b.Txs...)

@@ -11,13 +11,13 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/inconshreveable/log15"
 	"github.com/meterio/meter-pov/block"
 	"github.com/meterio/meter-pov/co"
 	"github.com/meterio/meter-pov/kv"
 	"github.com/meterio/meter-pov/meter"
 	"github.com/meterio/meter-pov/tx"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/inconshreveable/log15"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -162,7 +162,7 @@ func New(kv kv.GetPutter, genesisBlock *block.Block, verbose bool) (*Chain, erro
 	} else {
 		fmt.Println("Leaf Block", leafBlock.CompactString())
 		// remove all leaf blocks that are not finalized
-		for leafBlock.Header().BlockType() == block.BLOCK_TYPE_S_BLOCK || leafBlock.Header().TotalScore() > bestBlock.Header().TotalScore() {
+		for leafBlock.IsSBlock() || leafBlock.TotalScore() > bestBlock.TotalScore() {
 			fmt.Println("*** Start pruning")
 			parentID, err := ancestorTrie.GetAncestor(leafBlock.Header().ID(), leafBlock.Header().Number()-1)
 			if err != nil {
