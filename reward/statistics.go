@@ -41,7 +41,7 @@ func BuildStatisticsTx(entries []*StatEntry, chainTag byte, bestNum uint32, curE
 		BlockRef(tx.NewBlockRef(bestNum + 1)).
 		Expiration(720).
 		GasPriceCoef(0).
-		Gas(meter.BaseTxGas * uint64(len(entries)+20)).
+		Gas(meter.BaseTxGas * uint64(len(entries)+42)).
 		DependsOn(nil).
 		Nonce(12345678)
 
