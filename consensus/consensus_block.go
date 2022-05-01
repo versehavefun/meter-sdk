@@ -1183,7 +1183,7 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 
 	// edison not support the staking/auciton/slashing
 	//if meter.IsMainChainTesla(parentBlock.Header().Number()) == true || meter.IsTestNet() {
-	stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, true, uint32(conR.curEpoch))
+	stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, conR.csPacemaker.newCommittee, uint32(conR.curEpoch))
 	if err != nil {
 		// TODO: do something about this
 		conR.logger.Info("no slash statistics need to info", "error", err)

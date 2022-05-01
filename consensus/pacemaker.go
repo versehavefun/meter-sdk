@@ -65,7 +65,7 @@ type Pacemaker struct {
 	startRound             uint32
 
 	// Utility data structures
-	//newCommittee  bool //pacemaker in replay mode?
+	newCommittee  bool //pacemaker in replay mode?
 	mode          PMMode
 	msgCache      *MsgCache
 	sigAggregator *SignatureAggregator
@@ -844,6 +844,7 @@ func (p *Pacemaker) Start(mode PMMode) {
 	bestBlock := p.csReactor.chain.BestBlock()
 
 	freshCommittee := (bestBlock.Header().BlockType() == block.BLOCK_TYPE_K_BLOCK) || (bestBlock.Header().Number() == 0)
+	p.newCommittee = freshCommittee
 	height := bestQC.QCHeight
 	round := uint32(0)
 	if freshCommittee == false {
