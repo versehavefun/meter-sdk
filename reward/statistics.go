@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/meterio/meter-pov/block"
 	"github.com/meterio/meter-pov/chain"
@@ -41,14 +42,16 @@ func BuildStatisticsTx(entries []*StatEntry, chainTag byte, bestNum uint32, curE
 		BlockRef(tx.NewBlockRef(bestNum + 1)).
 		Expiration(720).
 		GasPriceCoef(0).
-		Gas(meter.BaseTxGas * uint64(len(entries)+42)).
+		// Gas(meter.BaseTxGas * uint64(len(entries)+20)).
 		DependsOn(nil).
 		Nonce(12345678)
+	gas := meter.TxGas + meter.ClauseGas*uint64(len(entries)) + meter.BaseTxGas /* buffer */
 
 	//now build Clauses
 	fmt.Println("Statistics Results")
 	for _, entry := range entries {
 		data := buildStatisticsData(entry, curEpoch)
+		gas += uint64(len(data)) * params.TxDataNonZeroGas
 		builder.Clause(
 			tx.NewClause(&staking.StakingModuleAddr).
 				WithValue(big.NewInt(0)).
@@ -57,6 +60,7 @@ func BuildStatisticsTx(entries []*StatEntry, chainTag byte, bestNum uint32, curE
 		logger.Debug("Statistic entry", "entry", entry.String())
 		fmt.Println(entry.Name, entry.Address, entry.Infraction.String())
 	}
+	builder.Gas(gas)
 
 	builder.Build().IntrinsicGas()
 	return builder.Build()
