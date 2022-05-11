@@ -64,6 +64,7 @@ const (
 	MaxBackTrackingBlockNumber = 65535
 
 	FixSubVote = 3733000
+	NewViewProposer = 3
 )
 
 // powpool coef
