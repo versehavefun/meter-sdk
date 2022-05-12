@@ -1,21 +1,31 @@
 [
   {
-    "name": "sdk-beta-13",
-    "address": "0xACA5881062F126B3DC7D1AC28C4D94B26977C01F",
-    "pub_key": "BIXar4+0NANEHYoKQdV7fl4mJ3AtOYJW0fXswerurrazk6E5jVHlbXCTNPU0gD6+zy1D1+j1DrUecT0pGIPcy28=:::XKrKMXwnrVYDRydC3A2gKSCekXgsRfKAlGuDqBx/+Lgcge+cPj2xnGRxeJIHIAM+U0yvc8WpV5PUYrRREnKjzwE=",
+    "name": "Mathew Williams",
+    "address": "0x78451Ed0FA6C3feb508E9Ac67Efc1f7Beb3e6f45",
+    "pub_key": "BFPfAlV0PZNouiRkJAXj8aHIzvKo5Q3tMcs+C//sUS6l7wiZYNRh2JnRO4bxSDAskL3fPRFFB4WP7u6ey4eCkL8=:::QJNhxvJrZwtIlolxlezyW30b81i6NVO/Ho2mr6rkvSatcBSqSsgrUwLFreHFZuhrhc3hHmiG5SyXJntKZqKPDwE=",
     "voting_power": 130,
     "network_addr": {
-      "ip": "13.212.185.13",
+      "ip": "13.213.3.39",
       "port": 8670
     }
   },
   {
-    "name": "sdk-beta-113",
-    "address": "0x8B4AAF30BCCE0375449B4128E5E6DF67316DCE1E",
-    "pub_key": "BIHr7IfWQ+AampC5Xg2D7s/TL+Wfve4+tTGFAN9i++VhSW1JcMALh+o76bsSAkGUrSOi6Dq28vUdD7Rt/ibNWzY=:::m9djl+vU7UBIf1tepQtLEMqcbsa7SBQwtder7jx3Rh21v9R1Lvf2UTHFr/gaY6uemq9vswkMZV3N494KMEzbigE=",
+    "name": "Glen Fanno",
+    "address": "0xF29696f3f9638ACEf52c63a32b36FcB171330A5E",
+    "pub_key": "BAoPiCuJlq4US9irCt1HWhk87ybvzOPy8srPCTCWBhnURdRnnFq7THPI4f+dYXw9niT7TYTsjegVhIiFKzK75ZE=:::lNXCn1MCPDqGycfQOwl2AOEzvREjUx3/o0FGzmxjowYGqwGAvDYeBy7YHJN2eCK+3zvy6qwXzPl4zMYxpaHeiwA=",
     "voting_power": 140,
     "network_addr": {
-      "ip": "3.1.5.113",
+      "ip": "18.140.53.170",
+      "port": 8670
+    }
+  },
+  {
+    "name": "Melody Woods",
+    "address": "0x4944EC08f01896B46F562e8000D62b49E0A76B8F",
+    "pub_key": "BEi4L2LexV3ts6W45q7jk9d1wh8oLvi/1I5h472HTuDPH/RCQ0qM6gtbfVC9Zutsp0vkeTTVBvWtAddcrHTU5RI=:::C8nSXThyY3PidRYq3IvKxu73VCseRZVMdVFUcQCySv+KwfOnsgyak/K5Zy9hAsYUK5HXQ5U5egwsrEQeBua74QE=",
+    "voting_power": 140,
+    "network_addr": {
+      "ip": "54.151.156.159",
       "port": 8670
     }
   }
