@@ -526,6 +526,15 @@ func (conR *ConsensusReactor) CalcCommitteeByNonce(nonce uint64) (*types.Validat
 
 	for i, val := range vals {
 		if bytes.Equal(crypto.FromECDSAPub(&val.PubKey), crypto.FromECDSAPub(&conR.myPubKey)) == true {
+			csCommonSystem := conR.csCommon.GetSystem()
+
+			csCommonPubKey := csCommonSystem.PubKeyToBytes(conR.csCommon.PubKey)
+			valBlsPubKey := csCommonSystem.PubKeyToBytes(val.BlsPubKey)
+
+			if bytes.Equal(csCommonPubKey, valBlsPubKey) == false {
+				continue
+			}
+
 			return Committee, CONSENSUS_COMMIT_ROLE_VALIDATOR, i, true
 		}
 	}
@@ -659,7 +668,7 @@ func (conR *ConsensusReactor) GetRelayPeers(round int) ([]*ConsensusPeer, error)
 		myIndex = myIndex + size - rr
 	}
 
-	indexes := GetRelayPeers(myIndex, size-1)
+	indexes := GetRelayPeers(myIndex, size)
 	for _, i := range indexes {
 		index := i + rr
 		if index >= size {
@@ -676,9 +685,10 @@ func (conR *ConsensusReactor) relayMsg(mi consensusMsgInfo, round int) {
 	peers, _ := conR.GetRelayPeers(round)
 	typeName := getConcreteName(mi.Msg)
 	conR.logger.Info("Now, relay committee msg", "type", typeName, "round", round)
+	msgHashHex := mi.MsgHashHex()
 	for _, peer := range peers {
 		msgSummary := (mi.Msg).String()
-		go peer.sendCommitteeMsg(mi.RawData, msgSummary, true)
+		go peer.sendCommitteeMsg(mi.RawData, msgSummary, msgHashHex, true)
 	}
 	// conR.asyncSendCommitteeMsg(msg, true, peers...)
 }
@@ -830,7 +840,16 @@ func (conR *ConsensusReactor) ReceiveCommitteeMsg(w http.ResponseWriter, r *http
 		return
 	}
 
-	conR.logger.Info(fmt.Sprintf("Recv %s", msg.String()), "peer", peerName, "ip", peerIP, "msgHash", mi.MsgHashHex())
+	summary := msg.String()
+	msgHashHex := mi.MsgHashHex()
+	name := ""
+	tail := ""
+	split := strings.Split(summary, " ")
+	if len(split) > 0 {
+		name = split[0]
+		tail = strings.Join(split[1:], " ")
+	}
+	conR.logger.Info(fmt.Sprintf("Recv %s %s %s", name, msgHashHex, tail), "peer", peerName, "ip", peerIP, "msgHash", mi.MsgHashHex())
 
 	conR.peerMsgQueue <- *mi
 	// respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
@@ -945,10 +964,12 @@ func (conR *ConsensusReactor) asyncSendCommitteeMsg(msg *ConsensusMessage, relay
 		fmt.Println("Could not marshal message")
 		return false
 	}
+	msgHash := sha256.Sum256(data)
+	msgHashHex := hex.EncodeToString(msgHash[:])[:8]
 	msgSummary := (*msg).String()
 
 	for _, peer := range peers {
-		go peer.sendCommitteeMsg(data, msgSummary, relay)
+		go peer.sendCommitteeMsg(data, msgSummary, msgHashHex, relay)
 	}
 
 	//wg.Wait()
@@ -1234,8 +1255,7 @@ func (conR *ConsensusReactor) CheckEstablishedCommittee(kHeight uint32) bool {
 
 func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 	var nonce uint64
-	//var info *powpool.PowBlockInfo
-	kBlock, err := conR.chain.BestKBlock()
+	bestKBlock, err := conR.chain.BestKBlock()
 	if err != nil {
 		fmt.Println("could not get best KBlock", err)
 		return errors.New("could not get best KBlock")
@@ -1247,15 +1267,14 @@ func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 
 	conR.UpdateCurDelegates()
 
-	kBlockHeight := kBlock.Header().Number()
-	if kBlock.Header().Number() == 0 {
+	kBlockHeight := bestKBlock.Header().Number()
+	epoch := uint64(0)
+	if kBlockHeight == 0 {
 		nonce = genesis.GenesisNonce
-		//info = powpool.GetPowGenesisBlockInfo()
 	} else {
-		nonce = kBlock.KBlockData.Nonce
-		//info = powpool.NewPowBlockInfoFromPosKBlock(kBlock)
+		nonce = bestKBlock.KBlockData.Nonce
+		epoch = bestKBlock.GetBlockEpoch() + 1
 	}
-	epoch := conR.chain.BestBlock().GetBlockEpoch()
 	conR.logger.Info("Init committee", "nonce", nonce, "kBlockHeight", kBlockHeight, "bestIsKBlock", bestIsKBlock, "epoch", epoch)
 
 	conR.curNonce = nonce
@@ -1263,18 +1282,11 @@ func (conR *ConsensusReactor) PrepareEnvForPacemaker() error {
 	conR.inCommittee = inCommittee
 
 	conR.lastKBlockHeight = kBlockHeight
-	if bestIsKBlock {
-		epoch = epoch + 1
-	}
 	conR.updateCurEpoch(epoch)
 	conR.UpdateActualCommittee(0)
 
 	if inCommittee {
 		conR.logger.Info("I am in committee!!!")
-		//pool := powpool.GetGlobPowPoolInst()
-		//pool.Wash()
-		//pool.InitialAddKframe(info)
-		//conR.logger.Info("PowPool initial added kblock", "kblock height", kBlock.Header().Number(), "powHeight", 0)
 
 		if bestIsKBlock == false {
 			//kblock is already added to pool, should start with next one
@@ -1700,7 +1712,7 @@ func (conR *ConsensusReactor) GetConsensusDelegates() ([]*types.Delegate, int, i
 		if err != nil || len(delegates) < conR.config.MinCommitteeSize {
 			delegates = conR.config.InitDelegates
 			fmt.Println("Load delegates from delegates.json as fallback, error loading staking candiates")
-			conR.sourceDelegates = fromStaking
+			conR.sourceDelegates = fromDelegatesFile
 		}
 	}
 
@@ -1729,16 +1741,23 @@ func (conR *ConsensusReactor) IsPacemakerRunning() bool {
 	return !conR.csPacemaker.IsStopped()
 }
 
-func (conR *ConsensusReactor) IsCommitteeMember() bool {
-	return conR.inCommittee
+func (conR *ConsensusReactor) PacemakerProbe() *PMProbeResult {
+	if conR.IsPacemakerRunning() {
+		return conR.csPacemaker.Probe()
+	}
+	return nil
 }
 
-func (conR *ConsensusReactor) GetQCHigh() *block.QuorumCert {
-	if conR.csPacemaker == nil {
-		return nil
+func (conR *ConsensusReactor) GetDelegatesSource() string {
+	if conR.sourceDelegates == fromStaking {
+		return "staking"
 	}
-	if conR.csPacemaker.QCHigh == nil {
-		return nil
+	if conR.sourceDelegates == fromDelegatesFile {
+		return "localFile"
 	}
-	return conR.csPacemaker.QCHigh.QC
+	return ""
+}
+
+func (conR *ConsensusReactor) IsCommitteeMember() bool {
+	return conR.inCommittee
 }

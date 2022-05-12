@@ -11,13 +11,13 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/inconshreveable/log15"
 	"github.com/meterio/meter-pov/block"
 	"github.com/meterio/meter-pov/co"
 	"github.com/meterio/meter-pov/kv"
 	"github.com/meterio/meter-pov/meter"
 	"github.com/meterio/meter-pov/tx"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/inconshreveable/log15"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -68,8 +68,8 @@ type caches struct {
 
 // New create an instance of Chain.
 func New(kv kv.GetPutter, genesisBlock *block.Block, verbose bool) (*Chain, error) {
-	prometheus.MustRegister(bestQCHeightGauge)
-	prometheus.MustRegister(bestHeightGauge)
+	prometheus.Register(bestQCHeightGauge)
+	prometheus.Register(bestHeightGauge)
 
 	if genesisBlock.Header().Number() != 0 {
 		return nil, errors.New("genesis number != 0")
@@ -162,7 +162,7 @@ func New(kv kv.GetPutter, genesisBlock *block.Block, verbose bool) (*Chain, erro
 	} else {
 		fmt.Println("Leaf Block", leafBlock.CompactString())
 		// remove all leaf blocks that are not finalized
-		for leafBlock.Header().BlockType() == block.BLOCK_TYPE_S_BLOCK || leafBlock.Header().TotalScore() > bestBlock.Header().TotalScore() {
+		for leafBlock.IsSBlock() || leafBlock.TotalScore() > bestBlock.TotalScore() {
 			fmt.Println("*** Start pruning")
 			parentID, err := ancestorTrie.GetAncestor(leafBlock.Header().ID(), leafBlock.Header().Number()-1)
 			if err != nil {
@@ -858,10 +858,19 @@ type QCWrap struct {
 }
 
 func (c *Chain) UpdateBestQC(qc *block.QuorumCert, source QCSource) (bool, error) {
-	qcs := []*QCWrap{
-		&QCWrap{source: LocalBestQC, qc: c.bestQC},
-		&QCWrap{source: LocalBestBlock, qc: c.bestBlock.QC},
-		&QCWrap{source: LocalCandidate, qc: c.bestQCCandidate},
+	// log.Info("update best qc", "qc", qc.String(), "source", source)
+	qcs := make([]*QCWrap, 0)
+
+	if c.bestQC != nil {
+		qcs = append(qcs, &QCWrap{source: LocalBestQC, qc: c.bestQC})
+	}
+
+	if c.bestBlock.QC != nil {
+		qcs = append(qcs, &QCWrap{source: LocalBestBlock, qc: c.bestBlock.QC})
+	}
+
+	if c.bestQCCandidate != nil {
+		qcs = append(qcs, &QCWrap{source: LocalCandidate, qc: c.bestQCCandidate})
 	}
 
 	/*
@@ -929,7 +938,12 @@ func (c *Chain) UpdateBestQC(qc *block.QuorumCert, source QCSource) (bool, error
 		}
 	}
 
-	if blk.QC.QCHeight > c.bestQC.QCHeight {
+	// fmt.Println("best qc: ", c.bestQC)
+	// fmt.Println("best qc height: ", c.bestQC.QCHeight)
+	// fmt.Println("best block: ", blk)
+	// fmt.Println("blk.QC", blk.QC)
+	// fmt.Println("blk.QC.QCHeight: ", blk.QC.QCHeight)
+	if c.bestQC == nil || blk.QC.QCHeight > c.bestQC.QCHeight {
 		log.Info("Update bestQC from bestBlock descendant", "from", c.bestQC.CompactString(), "to", blk.QC.CompactString())
 		c.bestQC = blk.QC
 		return true, saveBestQC(c.kv, c.bestQC)

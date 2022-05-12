@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net"
 
+	"github.com/meterio/meter-pov/block"
 	"github.com/meterio/meter-pov/meter"
 	"github.com/meterio/meter-pov/state"
 	"github.com/meterio/meter-pov/types"
@@ -99,6 +100,45 @@ func CheckEnoughSelfVotes(subVotes *big.Int, c *Candidate, bl *BucketList, selfV
 	return true
 }
 
+func GetLatestStakeholderList() (*StakeholderList, error) {
+	staking := GetStakingGlobInst()
+	if staking == nil {
+		log.Warn("staking is not initialized...")
+		err := errors.New("staking is not initialized...")
+		return newStakeholderList(nil), err
+	}
+
+	best := staking.chain.BestBlock()
+	state, err := staking.stateCreator.NewState(best.Header().StateRoot())
+	if err != nil {
+		return newStakeholderList(nil), err
+	}
+	StakeholderList := staking.GetStakeHolderList(state)
+
+	return StakeholderList, nil
+}
+
+func GetStakeholderListByHeader(header *block.Header) (*StakeholderList, error) {
+	staking := GetStakingGlobInst()
+	if staking == nil {
+		log.Warn("staking is not initialized...")
+		err := errors.New("staking is not initialized...")
+		return newStakeholderList(nil), err
+	}
+
+	h := header
+	if header == nil {
+		h = staking.chain.BestBlock().Header()
+	}
+	state, err := staking.stateCreator.NewState(h.StateRoot())
+	if err != nil {
+		return newStakeholderList(nil), err
+	}
+	StakeholderList := staking.GetStakeHolderList(state)
+
+	return StakeholderList, nil
+}
+
 func GetLatestBucketList() (*BucketList, error) {
 	staking := GetStakingGlobInst()
 	if staking == nil {
@@ -109,6 +149,27 @@ func GetLatestBucketList() (*BucketList, error) {
 
 	best := staking.chain.BestBlock()
 	state, err := staking.stateCreator.NewState(best.Header().StateRoot())
+	if err != nil {
+		return newBucketList(nil), err
+	}
+	bucketList := staking.GetBucketList(state)
+
+	return bucketList, nil
+}
+
+func GetBucketListByHeader(header *block.Header) (*BucketList, error) {
+	staking := GetStakingGlobInst()
+	if staking == nil {
+		log.Warn("staking is not initialized...")
+		err := errors.New("staking is not initialized...")
+		return newBucketList(nil), err
+	}
+
+	h := header
+	if header == nil {
+		h = staking.chain.BestBlock().Header()
+	}
+	state, err := staking.stateCreator.NewState(h.StateRoot())
 	if err != nil {
 		return newBucketList(nil), err
 	}
@@ -135,6 +196,27 @@ func GetLatestCandidateList() (*CandidateList, error) {
 
 	CandList := staking.GetCandidateList(state)
 	return CandList, nil
+}
+
+func GetCandidateListByHeader(header *block.Header) (*CandidateList, error) {
+	staking := GetStakingGlobInst()
+	if staking == nil {
+		log.Warn("staking is not initialized...")
+		err := errors.New("staking is not initialized...")
+		return nil, err
+	}
+
+	h := header
+	if header == nil {
+		h = staking.chain.BestBlock().Header()
+	}
+	state, err := staking.stateCreator.NewState(h.StateRoot())
+	if err != nil {
+		return nil, err
+	}
+
+	list := staking.GetCandidateList(state)
+	return list, nil
 }
 
 //  api routine interface

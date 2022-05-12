@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/meterio/meter-pov/block"
 	"github.com/meterio/meter-pov/chain"
@@ -41,14 +42,16 @@ func BuildStatisticsTx(entries []*StatEntry, chainTag byte, bestNum uint32, curE
 		BlockRef(tx.NewBlockRef(bestNum + 1)).
 		Expiration(720).
 		GasPriceCoef(0).
-		Gas(meter.BaseTxGas * uint64(len(entries)+20)).
+		// Gas(meter.BaseTxGas * uint64(len(entries)+20)).
 		DependsOn(nil).
 		Nonce(12345678)
+	gas := meter.TxGas + meter.ClauseGas*uint64(len(entries)) + meter.BaseTxGas /* buffer */
 
 	//now build Clauses
 	fmt.Println("Statistics Results")
 	for _, entry := range entries {
 		data := buildStatisticsData(entry, curEpoch)
+		gas += uint64(len(data)) * params.TxDataNonZeroGas
 		builder.Clause(
 			tx.NewClause(&staking.StakingModuleAddr).
 				WithValue(big.NewInt(0)).
@@ -57,6 +60,7 @@ func BuildStatisticsTx(entries []*StatEntry, chainTag byte, bestNum uint32, curE
 		logger.Debug("Statistic entry", "entry", entry.String())
 		fmt.Println(entry.Name, entry.Address, entry.Infraction.String())
 	}
+	builder.Gas(gas)
 
 	builder.Build().IntrinsicGas()
 	return builder.Build()
@@ -309,64 +313,65 @@ func ComputeStatistics(lastKBlockHeight, height uint32, chain *chain.Chain, curC
 
 	// calculate missing proposer
 	//logger.Debug("missing proposer:", "epoch", curEpoch, "newCommittee", newCommittee)
-	missedProposer, err := ComputeMissingProposer(curCommittee.Validators, curActualCommittee, blocks, curEpoch)
-	if err != nil {
-		logger.Warn("Error during missing proposer calculation:", "err", err)
-	}
-	// sort all missed proposer infraction in this order
-	// epoch ascend, height ascend, actual committee index ascend
-	sort.SliceStable(missedProposer, func(i, j int) bool {
-		pi := missedProposer[i]
-		pj := missedProposer[j]
+	if newCommittee {
+		missedProposer, err := ComputeMissingProposer(curCommittee.Validators, curActualCommittee, blocks, curEpoch)
+		if err != nil {
+			logger.Warn("Error during missing proposer calculation:", "err", err)
+		}
+		// sort all missed proposer infraction in this order
+		// epoch ascend, height ascend, actual committee index ascend
+		sort.SliceStable(missedProposer, func(i, j int) bool {
+			pi := missedProposer[i]
+			pj := missedProposer[j]
 
-		if pi.Info.Epoch < pj.Info.Epoch {
-			return true
-		}
-		if pi.Info.Height < pj.Info.Height {
-			return true
-		}
-		if pi.Info.Epoch == pj.Info.Epoch && pi.Info.Height == pj.Info.Height {
-			indexi := findInActualCommittee(curActualCommittee, pi.Address)
-			indexj := findInActualCommittee(curActualCommittee, pj.Address)
-			if indexi < indexj || (indexi == len(curActualCommittee)-1 && indexj == 0) {
+			if pi.Info.Epoch < pj.Info.Epoch {
 				return true
 			}
-		}
-		return false
-	})
+			if pi.Info.Height < pj.Info.Height {
+				return true
+			}
+			if pi.Info.Epoch == pj.Info.Epoch && pi.Info.Height == pj.Info.Height {
+				indexi := findInActualCommittee(curActualCommittee, pi.Address)
+				indexj := findInActualCommittee(curActualCommittee, pj.Address)
+				if indexi < indexj || (indexi == len(curActualCommittee)-1 && indexj == 0) {
+					return true
+				}
+			}
+			return false
+		})
 
-	i := 0
-	for i < len(missedProposer) {
-		m := missedProposer[i]
+		i := 0
+		for i < len(missedProposer) {
+			m := missedProposer[i]
 
-		// calculate the count for same (epoch, height)
-		j := i + 1
-		for ; j < len(missedProposer) && missedProposer[j].Info.Epoch == m.Info.Epoch && missedProposer[j].Info.Height == m.Info.Height; j++ {
-		}
-		length := j - i
+			// calculate the count for same (epoch, height)
+			j := i + 1
+			for ; j < len(missedProposer) && missedProposer[j].Info.Epoch == m.Info.Epoch && missedProposer[j].Info.Height == m.Info.Height; j++ {
+			}
+			length := j - i
 
-		// if length > 1, append infractions except for the first missing proposer
-		if length > 1 {
-			fmt.Println("exempt missing proposer: ", m.Address, "epoch:", m.Info.Epoch, "height:", m.Info.Height)
-			for k := i + 1; k < j; k++ {
-				mk := missedProposer[k]
-				fmt.Println("followed by:", mk.Address, "epoch:", mk.Info.Epoch, "height:", mk.Info.Epoch)
-				inf := &stats[mk.Address].Infraction
+			// if length > 1, append infractions except for the first missing proposer
+			if length > 1 {
+				fmt.Println("exempt missing proposer: ", m.Address, "epoch:", m.Info.Epoch, "height:", m.Info.Height)
+				for k := i + 1; k < j; k++ {
+					mk := missedProposer[k]
+					fmt.Println("followed by:", mk.Address, "epoch:", mk.Info.Epoch, "height:", mk.Info.Epoch)
+					inf := &stats[mk.Address].Infraction
+					inf.MissingProposers.Counter++
+					minfo := &m.Info
+					inf.MissingProposers.Info = append(inf.MissingProposers.Info, minfo)
+				}
+				i = j
+			} else {
+				// otherwise, append the current infraction
+				inf := &stats[m.Address].Infraction
 				inf.MissingProposers.Counter++
 				minfo := &m.Info
 				inf.MissingProposers.Info = append(inf.MissingProposers.Info, minfo)
+				i = i + 1
 			}
-			i = j
-		} else {
-			// otherwise, append the current infraction
-			inf := &stats[m.Address].Infraction
-			inf.MissingProposers.Counter++
-			minfo := &m.Info
-			inf.MissingProposers.Info = append(inf.MissingProposers.Info, minfo)
-			i = i + 1
 		}
 	}
-
 	// calculate missing voter
 	// currently do not calc the missingVoter. Because signature aggreator skips the votes after the count reaches
 	// to 2/3. So missingVoter counting is inacurate and causes the false alarm.

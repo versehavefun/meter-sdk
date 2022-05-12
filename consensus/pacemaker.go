@@ -65,7 +65,7 @@ type Pacemaker struct {
 	startRound             uint32
 
 	// Utility data structures
-	//newCommittee  bool //pacemaker in replay mode?
+	newCommittee  bool //pacemaker in replay mode?
 	mode          PMMode
 	msgCache      *MsgCache
 	sigAggregator *SignatureAggregator
@@ -111,6 +111,65 @@ func NewPaceMaker(conR *ConsensusReactor) *Pacemaker {
 	p.timeoutCertManager = newPMTimeoutCertManager(p)
 	// p.stopCleanup()
 	return p
+}
+
+type BlockProbe struct {
+	Height uint32
+	Round  uint32
+	Type   uint32
+	Raw    []byte
+}
+
+type PMProbeResult struct {
+	Mode             string
+	StartHeight      uint32
+	StartRound       uint32
+	CurRound         uint32
+	MyCommitteeIndex int
+
+	LastVotingHeight uint32
+	QCHigh           *block.QuorumCert
+	BlockLeaf        *BlockProbe
+	BlockExecuted    *BlockProbe
+	BlockLocked      *BlockProbe
+
+	ProposalCount int
+	PendingCount  int
+	PendingLowest uint32
+}
+
+func (p *Pacemaker) Probe() *PMProbeResult {
+	result := &PMProbeResult{
+		Mode:             p.mode.String(),
+		StartHeight:      p.startHeight,
+		StartRound:       p.startRound,
+		CurRound:         p.currentRound,
+		MyCommitteeIndex: p.myActualCommitteeIndex,
+
+		LastVotingHeight: p.lastVotingHeight,
+		QCHigh:           p.QCHigh.QC,
+	}
+	if p.QCHigh != nil && p.QCHigh.QC != nil {
+		result.QCHigh = p.QCHigh.QC
+	}
+	if p.blockLeaf != nil {
+		result.BlockLeaf = &BlockProbe{Height: p.blockLeaf.Height, Round: p.blockLeaf.Round, Type: uint32(p.blockLeaf.ProposedBlockType), Raw: p.blockLeaf.ProposedBlock}
+	}
+	if p.blockExecuted != nil {
+		result.BlockExecuted = &BlockProbe{Height: p.blockExecuted.Height, Round: p.blockExecuted.Round, Type: uint32(p.blockExecuted.ProposedBlockType), Raw: p.blockExecuted.ProposedBlock}
+	}
+	if p.blockLocked != nil {
+		result.BlockLocked = &BlockProbe{Height: p.blockLocked.Height, Round: p.blockLocked.Round, Type: uint32(p.blockLocked.ProposedBlockType), Raw: p.blockLocked.ProposedBlock}
+	}
+	if p.proposalMap != nil {
+		result.ProposalCount = p.proposalMap.Len()
+	}
+	if p.pendingList != nil {
+		result.PendingCount = p.pendingList.Len()
+		result.PendingLowest = p.pendingList.GetLowestHeight()
+	}
+	return result
+
 }
 
 func (p *Pacemaker) CreateLeaf(parent *pmBlock, qc *pmQuorumCert, height, round uint32) *pmBlock {
@@ -230,15 +289,23 @@ func (p *Pacemaker) OnCommit(commitReady []*pmBlock) {
 		// commit the approved block
 		bestQC := p.proposalMap.Get(b.Height + 1).Justify.QC
 		err := p.csReactor.FinalizeCommitBlock(b.ProposedBlockInfo, bestQC)
-		if err != nil && err != chain.ErrBlockExist {
-			p.csReactor.logger.Warn("Commit block failed ...", "error", err)
-			//revert to checkpoint
-			best := p.csReactor.chain.BestBlock()
-			state, err := p.csReactor.stateCreator.NewState(best.Header().StateRoot())
-			if err != nil {
-				panic(fmt.Sprintf("revert the state faild ... %v", err))
+		if err != nil {
+			if err != chain.ErrBlockExist && err != errKnownBlock {
+				p.csReactor.logger.Warn("Commit block failed ...", "error", err)
+				//revert to checkpoint
+				best := p.csReactor.chain.BestBlock()
+				state, err := p.csReactor.stateCreator.NewState(best.Header().StateRoot())
+				if err != nil {
+					panic(fmt.Sprintf("revert the state faild ... %v", err))
+				}
+				state.RevertTo(b.ProposedBlockInfo.CheckPoint)
+			} else {
+				if b.ProposedBlockInfo != nil && b.ProposedBlockInfo.ProposedBlock != nil {
+					fmt.Println("block already in chain: ", b.ProposedBlockInfo.ProposedBlock.Number(), b.ProposedBlockInfo.ProposedBlock.ID())
+				} else {
+					fmt.Println("block alreday in chain")
+				}
 			}
-			state.RevertTo(b.ProposedBlockInfo.CheckPoint)
 		}
 
 		p.Execute(b) //b.cmd
@@ -370,7 +437,12 @@ func (p *Pacemaker) OnReceiveProposal(mi *consensusMsgInfo) error {
 		if validTimeout {
 			p.updateCurrentRound(bnew.Round, UpdateOnTimeoutCertProposal)
 		} else {
-			p.updateCurrentRound(bnew.Round, UpdateOnRegularProposal)
+			if proposalMsg.ProposedBlockType == KBlockType {
+				// if proposed block is KBlock, reset the timer with extra time cushion
+				p.updateCurrentRound(bnew.Round, UpdateOnKBlockProposal)
+			} else {
+				p.updateCurrentRound(bnew.Round, UpdateOnRegularProposal)
+			}
 		}
 
 		// parent got QC, pre-commit
@@ -401,6 +473,8 @@ func (p *Pacemaker) OnReceiveProposal(mi *consensusMsgInfo) error {
 			// send vote message to leader
 			p.SendConsensusMessage(proposalMsg.CSMsgCommonHeader.Round, msg, false)
 			p.lastVotingHeight = bnew.Height
+		} else {
+			p.logger.Info("No voting due to catch-up mode")
 		}
 	}
 
@@ -779,6 +853,7 @@ func (p *Pacemaker) Start(mode PMMode) {
 	bestBlock := p.csReactor.chain.BestBlock()
 
 	freshCommittee := (bestBlock.Header().BlockType() == block.BLOCK_TYPE_K_BLOCK) || (bestBlock.Header().Number() == 0)
+	p.newCommittee = freshCommittee
 	height := bestQC.QCHeight
 	round := uint32(0)
 	if freshCommittee == false {
@@ -916,7 +991,10 @@ func (p *Pacemaker) mainLoop() {
 				err = p.OnReceiveProposal(&m)
 				if err != nil {
 					// 2 errors indicate linking message to pending list for the first time, does not need to check pending
-					if err != errParentMissing && err != errQCNodeMissing && err != errRestartPaceMakerRequired {
+					if err == errKnownBlock {
+						// do nothing in this case
+						fmt.Println("block is known:", m.Msg.String())
+					} else if err != errParentMissing && err != errQCNodeMissing && err != errRestartPaceMakerRequired {
 						err = p.checkPendingMessages(msg.CSMsgCommonHeader.Height)
 					} else {
 						// qcHigh was supposed to be higher than bestQC at all times
@@ -925,6 +1003,7 @@ func (p *Pacemaker) mainLoop() {
 						// we'll have to restart the pacemaker in catch-up mode to "jump" the pacemaker ahead in order to
 						// process future proposals in time.
 						if (err == errRestartPaceMakerRequired) || (p.QCHigh != nil && p.QCHigh.QCNode != nil && p.QCHigh.QCNode.Height+CATCH_UP_THRESHOLD < p.csReactor.chain.BestQC().QCHeight) {
+							log.Warn("Pacemaker restart requested", "qcHigh", p.QCHigh.ToString(), "qcHigh.QCNode", p.QCHigh.QCNode.Height, "err", err)
 							p.Restart(PMModeCatchUp)
 						}
 					}
@@ -1067,13 +1146,15 @@ R:
 func (p *Pacemaker) OnRoundTimeout(ti PMRoundTimeoutInfo) {
 	p.logger.Warn("Round Time Out", "round", ti.round, "counter", p.timeoutCounter)
 
-	p.updateCurrentRound(p.currentRound+1, UpdateOnTimeout)
+	updated := p.updateCurrentRound(ti.round+1, UpdateOnTimeout)
 	newTi := &PMRoundTimeoutInfo{
 		height:  p.QCHigh.QC.QCHeight + 1,
 		round:   p.currentRound,
 		counter: p.timeoutCounter + 1,
 	}
-	p.OnNextSyncView(p.QCHigh.QC.QCHeight+1, p.currentRound, RoundTimeout, newTi)
+	if updated == true {
+		p.OnNextSyncView(p.QCHigh.QC.QCHeight+1, p.currentRound, RoundTimeout, newTi)
+	}
 	// p.startRoundTimer(ti.height, ti.round+1, ti.counter+1)
 }
 
@@ -1084,6 +1165,11 @@ func (p *Pacemaker) updateCurrentRound(round uint32, reason roundUpdateReason) b
 		if round > p.currentRound {
 			updated = true
 			p.resetRoundTimer(round, TimerInit)
+		}
+	case UpdateOnKBlockProposal:
+		if round > p.currentRound {
+			updated = true
+			p.resetRoundTimer(round, TimerInitDouble)
 		}
 	case UpdateOnTimeoutCertProposal:
 		p.resetRoundTimer(round, TimerInit)
@@ -1102,14 +1188,18 @@ func (p *Pacemaker) updateCurrentRound(round uint32, reason roundUpdateReason) b
 
 func (p *Pacemaker) startRoundTimer(round uint32, reason roundTimerUpdateReason) {
 	if p.roundTimer == nil {
+		baseInterval := RoundTimeoutInterval
 		switch reason {
+		case TimerInitDouble:
+			baseInterval = RoundTimeoutInterval * 2
+			p.timeoutCounter = 0
 		case TimerInit:
 			p.timeoutCounter = 0
 		case TimerInc:
 			p.timeoutCounter++
 		}
-		p.logger.Info("Start round timer", "round", round, "counter", p.timeoutCounter)
-		timeoutInterval := RoundTimeoutInterval * (1 << p.timeoutCounter)
+		timeoutInterval := baseInterval * (1 << p.timeoutCounter)
+		p.logger.Info("Start round timer", "round", round, "counter", p.timeoutCounter, "interval", int64(timeoutInterval/time.Second))
 		p.roundTimer = time.AfterFunc(timeoutInterval, func() {
 			p.roundTimeoutCh <- PMRoundTimeoutInfo{round: round, counter: p.timeoutCounter}
 		})

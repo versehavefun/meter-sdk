@@ -1071,6 +1071,7 @@ func (conR *ConsensusReactor) BuildMBlock(parentBlock *block.Block) *ProposedBlo
 			if packer.IsTxNotAdoptableNow(err) {
 				continue
 			}
+			conR.logger.Warn("mBlock flow.Adopt(tx) failed...", "txid", tx.ID(), "error", err)
 			txsInBlk = append(txsInBlk, tx)
 		}
 	}
@@ -1153,6 +1154,7 @@ func (conR *ConsensusReactor) BuildKBlock(parentBlock *block.Block, data *block.
 				conR.logger.Warn("tx not adoptable", "txid", tx.ID())
 				continue
 			}
+			conR.logger.Warn("kBlock flow.Adopt(tx) failed...", "txid", tx.ID(), "error", err)
 		}
 	}
 
@@ -1176,12 +1178,12 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 	txs := reward.BuildMinerRewardTxs(rewards, chainTag, bestNum)
 	lastKBlockHeight := parentBlock.Header().LastKBlockHeight()
 	for _, tx := range txs {
-		conR.logger.Info("miner reward tx appended", "txid", tx.ID())
+		conR.logger.Info("miner reward tx appended", "txid", tx.ID(), "clauses-size", len(tx.Clauses()))
 	}
 
 	// edison not support the staking/auciton/slashing
 	//if meter.IsMainChainTesla(parentBlock.Header().Number()) == true || meter.IsTestNet() {
-	stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, true, uint32(conR.curEpoch))
+	stats, err := reward.ComputeStatistics(lastKBlockHeight, parentBlock.Header().Number(), conR.chain, conR.curCommittee, conR.curActualCommittee, conR.csCommon, conR.csPacemaker.newCommittee, uint32(conR.curEpoch))
 	if err != nil {
 		// TODO: do something about this
 		conR.logger.Info("no slash statistics need to info", "error", err)
@@ -1189,7 +1191,7 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 	if len(stats) != 0 {
 		statsTx := reward.BuildStatisticsTx(stats, chainTag, bestNum, curEpoch)
 		txs = append(txs, statsTx)
-		conR.logger.Info("auction control tx appended", "txid", statsTx.ID())
+		conR.logger.Info("auction control tx appended", "txid", statsTx.ID(), "clauses-size", len(statsTx.Clauses()))
 	}
 
 	//reservedPrice := GetAuctionReservedPrice()
@@ -1233,7 +1235,7 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 			governingTx := reward.BuildStakingGoverningTx(distList, uint32(conR.curEpoch), chainTag, bestNum)
 			if governingTx != nil {
 				txs = append(txs, governingTx)
-				conR.logger.Info("*** governing tx appended", "txid", governingTx.ID())
+				conR.logger.Info("*** governing tx appended", "txid", governingTx.ID(), "clauses-size", len(governingTx.Clauses()))
 			}
 
 			//autobidList := rewardMap.GetAutobidList()
@@ -1261,8 +1263,9 @@ func (conR *ConsensusReactor) buildRewardTxs(parentBlock *block.Block, rewards [
 
 	if tx := reward.BuildAccountLockGoverningTx(chainTag, bestNum, curEpoch); tx != nil {
 		txs = append(txs, tx)
-		conR.logger.Info("account lock tx appended", "txid", tx.ID())
+		conR.logger.Info("account lock tx appended", "txid", tx.ID(), "clauses-size", len(tx.Clauses()))
 	}
+	conR.logger.Info("buildRewardTxs", "size", len(txs))
 	return txs
 }
 
@@ -1378,6 +1381,18 @@ func (conR *ConsensusReactor) PreCommitBlock(blkInfo *ProposedBlockInfo) error {
 	// }
 	conR.logger.Debug("Try to pre-commit block", "block", blk.Oneliner())
 
+	if blk == nil {
+		conR.logger.Warn("pre-commit block is empty")
+		return nil
+	}
+	if stage == nil {
+		conR.logger.Warn("pre-commit stage is empty")
+		return nil
+	}
+	if receipts == nil {
+		conR.logger.Warn("pre-commit receipts is empty")
+		return nil
+	}
 	// similar to node.processBlock
 	// startTime := mclock.Now()
 

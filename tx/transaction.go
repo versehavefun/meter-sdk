@@ -157,8 +157,26 @@ func NewTransactionFromEthTx(ethTx *types.Transaction, chainTag byte, blockRef B
 		return nil, err
 	}
 
-	ethSignature := append(append(R.Bytes(), S.Bytes()...), V.Bytes()...)
-	fmt.Println("eth tx signature:", hex.EncodeToString(ethSignature))
+	// padding 0 for S to 32bytes
+	sBytes := make([]byte, 0)
+	if len(S.Bytes()) < 32 {
+		for i := 0; i < 32-len(S.Bytes()); i++ {
+			sBytes = append(sBytes, 0)
+		}
+	}
+	sBytes = append(sBytes, S.Bytes()...)
+
+	// padding 0 for R to 32bytes
+	rBytes := make([]byte, 0)
+	if len(R.Bytes()) < 32 {
+		for i := 0; i < 32-len(R.Bytes()); i++ {
+			rBytes = append(rBytes, 0)
+		}
+	}
+	rBytes = append(rBytes, R.Bytes()...)
+
+	ethSignature := append(append(rBytes, sBytes...), V.Bytes()...)
+	// fmt.Println("eth tx signature:", hex.EncodeToString(ethSignature))
 
 	origin, err := recoverPlain(msgHash, R, S, V, false)
 	if err != nil {
@@ -190,7 +208,15 @@ func NewTransactionFromEthTx(ethTx *types.Transaction, chainTag byte, blockRef B
 		},
 	}
 	// tx.cache.signer.Store(from)
-	fmt.Println("NewTransactionFromEthTx created tx: ", tx.ID())
+	fmt.Println("NewTransactionFromEthTx created tx: ", tx.ID(),
+		"\n  from:", msg.From().Hex(),
+		"\n  to:", to.String(),
+		"\n  value:", msg.Value().String(),
+		"\n  chainID:", fmt.Sprintf("0x%x", ethTx.ChainId()),
+		"\n  r:", fmt.Sprintf("0x%x", rBytes),
+		"\n  s:", fmt.Sprintf("0x%x", sBytes),
+		"\n  v:", fmt.Sprintf("0x%x", V.Bytes()),
+		"\n  nonce:", msg.Nonce())
 	return tx, nil
 }
 

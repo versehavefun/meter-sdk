@@ -6,9 +6,11 @@
 package consensus
 
 import (
+	sha256 "crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/meterio/meter-pov/meter"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -95,7 +97,16 @@ func (p *Pacemaker) receivePacemakerMsg(w http.ResponseWriter, r *http.Request) 
 	if fromMyself {
 		peerName = peerName + "(myself)"
 	}
-	p.logger.Info(fmt.Sprintf("Recv %s", msg.String()), "peer", peerName, "ip", peer.netAddr.IP.String(), "msgHash", mi.MsgHashHex())
+	summary := msg.String()
+	msgHashHex := mi.MsgHashHex()
+	name := ""
+	tail := ""
+	split := strings.Split(summary, " ")
+	if len(split) > 0 {
+		name = split[0]
+		tail = strings.Join(split[1:], " ")
+	}
+	p.logger.Info(fmt.Sprintf("Recv %s %s %s", name, msgHashHex, tail), "peer", peerName, "ip", peer.netAddr.IP.String())
 
 	p.pacemakerMsgCh <- *mi
 
@@ -111,12 +122,18 @@ func (p *Pacemaker) relayMsg(mi consensusMsgInfo) {
 	height := msg.Header().Height
 	round := msg.Header().Round
 	peers := p.GetRelayPeers(round)
-	typeName := getConcreteName(mi.Msg)
+	// typeName := getConcreteName(mi.Msg)
+	msgHashHex := mi.MsgHashHex()
 	if len(peers) > 0 {
-		p.logger.Info("Now, relay this "+typeName+"...", "height", height, "round", round, "msgHash", mi.MsgHashHex())
+		peerNames := make([]string, 0)
 		for _, peer := range peers {
-			msgSummary := (mi.Msg).String()
-			go peer.sendPacemakerMsg(mi.RawData, msgSummary, true)
+			peerNames = append(peerNames, peer.NameString())
+		}
+		msgSummary := (mi.Msg).String()
+		p.logger.Info("Relay>> "+msgSummary, "to", strings.Join(peerNames, ", "), "height", height, "round", round, "msgHash", msgHashHex)
+		// p.logger.Info("Now, relay this "+typeName+"...", "height", height, "round", round, "msgHash", mi.MsgHashHex())
+		for _, peer := range peers {
+			go peer.sendPacemakerMsg(mi.RawData, msgSummary, msgHashHex, true)
 		}
 		// p.asyncSendPacemakerMsg(mi.Msg, true, peers...)
 	}
@@ -137,7 +154,7 @@ func (p *Pacemaker) GetRelayPeers(round uint32) []*ConsensusPeer {
 		myIndex = myIndex + size - rr
 	}
 
-	indexes := GetRelayPeers(myIndex, size-1)
+	indexes := GetRelayPeers(myIndex, size)
 	for _, i := range indexes {
 		index := i + rr
 		if index >= size {
@@ -147,6 +164,7 @@ func (p *Pacemaker) GetRelayPeers(round uint32) []*ConsensusPeer {
 		name := p.csReactor.GetDelegateNameByIP(member.NetAddr.IP)
 		peers = append(peers, newConsensusPeer(name, member.NetAddr.IP, member.NetAddr.Port, p.csReactor.magic))
 	}
+	log.Info("get relay peers result", "myIndex", myIndex, "committeeSize", size, "round", round, "indexes", indexes)
 	return peers
 }
 
@@ -235,7 +253,7 @@ func (p *Pacemaker) ValidateProposal(b *pmBlock) error {
 
 	now := uint64(time.Now().Unix())
 	stage, receipts, err := p.csReactor.ProcessProposedBlock(parentHeader, blk, now)
-	if err != nil {
+	if err != nil && err != errKnownBlock {
 		p.logger.Error("process block failed", "proposed", blk.Oneliner(), "err", err)
 		b.SuccessProcessed = false
 		b.ProcessError = err
@@ -279,8 +297,11 @@ func (p *Pacemaker) SendConsensusMessage(round uint32, msg ConsensusMessage, cop
 		proposer := p.getProposerByRound(round)
 		peers = append(peers, proposer)
 	case *PMNewViewMessage:
-		nxtProposer := p.getProposerByRound(round)
-		peers = append(peers, nxtProposer)
+		for i := 0; i < meter.NewViewProposer; i++ {
+			nxtProposer := p.getProposerByRound(round + uint32(i))
+			peers = append(peers, nxtProposer)
+		}
+
 		myself = nil // don't send new view to myself
 	}
 
@@ -314,10 +335,21 @@ func (p *Pacemaker) asyncSendPacemakerMsg(msg ConsensusMessage, relay bool, peer
 		return false
 	}
 	msgSummary := msg.String()
+	msgHash := sha256.Sum256(data)
+	msgHashHex := hex.EncodeToString(msgHash[:])[:8]
 
+	peerNames := make([]string, 0)
+	for _, peer := range peers {
+		peerNames = append(peerNames, peer.NameString())
+	}
+	prefix := "Send>>"
+	if relay {
+		prefix = "Relay>>"
+	}
+	p.logger.Info(prefix+" "+msgSummary, "to", strings.Join(peerNames, ", "), "msgHash", msgHashHex)
 	// broadcast consensus message to peers
 	for _, peer := range peers {
-		go peer.sendPacemakerMsg(data, msgSummary, relay)
+		go peer.sendPacemakerMsg(data, msgSummary, msgHashHex, relay)
 	}
 	return true
 }

@@ -181,6 +181,7 @@ func ScriptEngineCheck(d []byte) bool {
 //		}
 //	}
 //}
+
 func (rt *Runtime) FromNativeContract(caller meter.Address) bool {
 
 	nativeMtrERC20 := builtin.Params.Native(rt.State()).GetAddress(meter.KeyNativeMtrERC20Address)
