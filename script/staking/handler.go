@@ -1236,115 +1236,79 @@ func (sb *StakingBody) BucketUpdateHandler(env *StakingEnv, gas uint64) (leftOve
 			}
 		}
 
-		if number >= 3418000 && bucket.Candidate != sb.CandAddr {
+		if bucket.Candidate != sb.CandAddr {
 			err = errBucketOwnerMismatch
 			return
 		}
 
-		if number < 3418000 {
-			subBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), bucket.Option, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
-			subBucket.Unbounded = true
-			subBucket.MatureTime = sb.Timestamp + GetBoundLocktime(subBucket.Option) // lock time
+		// scriptBody include bucket id and amount
+		// bucket or scriptBody
+		newBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
 
-			bucketList.Add(subBucket)
+		//sb.Amount / bucket.Value
 
-			staking.SetBucketList(bucketList, state)
-			staking.SetCandidateList(candidateList, state)
-			return
-		} else if number >= meter.FixSubVote {
-			// scriptBody include bucket id and amount
-			// bucket or scriptBody
-			newBucket := NewBucket(bucket.Owner, bucket.Candidate, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, bucket.Autobid, sb.Timestamp, sb.Nonce)
+		// sanity check done, take actions
+		newBucket.Unbounded = true
+		newBucket.MatureTime = sb.Timestamp + GetBoundLocktime(newBucket.Option) // lock time
 
-			//sb.Amount / bucket.Value
+		//stakeholder := stakeholderList.Get(sb.HolderAddr) // ?? bucket.Owner
+		stakeholder := stakeholderList.Get(bucket.Owner) // ??
+		//if stakeholder == nil {
+		//	stakeholder = NewStakeholder(sb.HolderAddr)
+		//}
+		//	stakeholder.AddBucket(bucket)
 
-			// sanity check done, take actions
-			newBucket.Unbounded = true
-			newBucket.MatureTime = sb.Timestamp + GetBoundLocktime(newBucket.Option) // lock time
+		bucketID := newBucket.BucketID
 
-			//stakeholder := stakeholderList.Get(sb.HolderAddr) // ?? bucket.Owner
-			stakeholder := stakeholderList.Get(bucket.Owner) // ??
-			//if stakeholder == nil {
-			//	stakeholder = NewStakeholder(sb.HolderAddr)
-			//}
-			//	stakeholder.AddBucket(bucket)
+		//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
 
-			bucketID := newBucket.BucketID
+		// Now so far so good, calc interest first
+		//bonus := TouchBucketBonus(bucket.CreateTime, bucket)
 
-			//bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+		_oldBonusVotes := new(big.Int).SetUint64(bucket.BonusVotes)
 
-			// Now so far so good, calc interest first
-			//bonus := TouchBucketBonus(bucket.CreateTime, bucket)
+		// update bucket values
+		changeBonusVotes := big.NewInt(0)
+		changeBonusVotes.Mul(_oldBonusVotes, sb.Amount)
+		changeBonusVotes.Div(changeBonusVotes, bucket.Value)
 
-			_oldBonusVotes := new(big.Int).SetUint64(bucket.BonusVotes)
+		bucket.Value.Sub(bucket.Value, sb.Amount)
+		bucket.BonusVotes -= changeBonusVotes.Uint64()
+		bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
+		bucket.TotalVotes.Sub(bucket.TotalVotes, changeBonusVotes)
 
-			// update bucket values
-			changeBonusVotes := big.NewInt(0)
-			changeBonusVotes.Mul(_oldBonusVotes, sb.Amount)
-			changeBonusVotes.Div(changeBonusVotes, bucket.Value)
+		newBucket.BonusVotes += changeBonusVotes.Uint64()
+		newBucket.TotalVotes.Add(newBucket.Value, changeBonusVotes)
 
-			bucket.Value.Sub(bucket.Value, sb.Amount)
-			bucket.BonusVotes -= changeBonusVotes.Uint64()
-			bucket.TotalVotes.Sub(bucket.TotalVotes, sb.Amount)
-			bucket.TotalVotes.Sub(bucket.TotalVotes, changeBonusVotes)
+		// update candidate, for both bonus and increase amount
+		//if bucket.Candidate.IsZero() == false {
+		//	if cand := candidateList.Get(bucket.Candidate); cand != nil {
+		//		cand.TotalVotes.Sub(cand.TotalVotes, bonus)
+		//		cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
+		//	}
+		//}
 
-			newBucket.BonusVotes += changeBonusVotes.Uint64()
-			newBucket.TotalVotes.Add(newBucket.Value, changeBonusVotes)
+		//} else {
+		//stakeholder.AddBucket(newBucket)
+		stakeholder.Buckets = append(stakeholder.Buckets, bucketID)
+		//stakeholderList.Add(stakeholder)
+		//}
 
-			// update candidate, for both bonus and increase amount
-			//if bucket.Candidate.IsZero() == false {
-			//	if cand := candidateList.Get(bucket.Candidate); cand != nil {
-			//		cand.TotalVotes.Sub(cand.TotalVotes, bonus)
-			//		cand.TotalVotes.Sub(cand.TotalVotes, sb.Amount)
-			//	}
-			//}
+		bucketList.Add(newBucket)
 
-			//} else {
-			//stakeholder.AddBucket(newBucket)
-			stakeholder.Buckets = append(stakeholder.Buckets, bucketID)
-			//stakeholderList.Add(stakeholder)
-			//}
-
-			bucketList.Add(newBucket)
-
-			// if the candidate already exists return error without paying gas
-			cand := candidateList.Get(sb.CandAddr)
-			if cand == nil {
-				err = errCandidateNotListed
-				return
-			}
-			cand.Buckets = append(cand.Buckets, bucketID)
-
-			staking.SetBucketList(bucketList, state)
-			staking.SetCandidateList(candidateList, state)
-			staking.SetStakeHolderList(stakeholderList, state)
-
-			return
-		} else {
-			newBucket := NewBucket(bucket.Owner, sb.CandAddr, sb.Amount, uint8(bucket.Token), ONE_WEEK_LOCK, bucket.Rate, sb.Autobid, sb.Timestamp, sb.Nonce)
-
-			bucketList.Add(newBucket)
-
-			// sanity check done, take actions
-			newBucket.Unbounded = true
-			newBucket.MatureTime = sb.Timestamp + GetBoundLocktime(newBucket.Option) // lock time
-
-			stakeholder := stakeholderList.Get(sb.HolderAddr)
-			//if stakeholder == nil {
-			//	stakeholder = NewStakeholder(sb.HolderAddr)
-			//	stakeholder.AddBucket(bucket)
-
-			//} else {
-			stakeholder.AddBucket(newBucket)
-			stakeholderList.Add(stakeholder)
-			//}
-
-			staking.SetBucketList(bucketList, state)
-			staking.SetCandidateList(candidateList, state)
-			staking.SetStakeHolderList(stakeholderList, state)
-
+		// if the candidate already exists return error without paying gas
+		cand := candidateList.Get(sb.CandAddr)
+		if cand == nil {
+			err = errCandidateNotListed
 			return
 		}
+		cand.Buckets = append(cand.Buckets, bucketID)
+
+		staking.SetBucketList(bucketList, state)
+		staking.SetCandidateList(candidateList, state)
+		staking.SetStakeHolderList(stakeholderList, state)
+
+		return
 	}
 
 	if state.GetBalance(sb.HolderAddr).Cmp(sb.Amount) < 0 {
